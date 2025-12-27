@@ -10,15 +10,15 @@ router.get('/google',
 );
 
 router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: 'http://localhost:5173/login' }),
+  passport.authenticate('google', { failureRedirect: `${process.env.FRONTEND_URL}/login` }),
   (req, res) => {
     // Create JWT token after successful authentication
     if (!req.user) {
-      return res.redirect('http://localhost:5173/login?error=authentication_failed');
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=authentication_failed`);
     }
 
     const token = jwt.sign(
-      { 
+      {
         userId: req.user._id,
         id: req.user._id, // Adding id field to match your format
         role: req.user.role || 'user',
@@ -37,7 +37,7 @@ router.get('/google/callback',
     });
 
     // Redirect to frontend with token
-    res.redirect(`http://localhost:5173/auth/success?token=${token}`);
+    res.redirect(`${process.env.FRONTEND_URL}/auth/success?token=${token}`);
   }
 );
 

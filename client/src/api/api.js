@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = import.meta.env.VITE_SERVER_URL || "https://new-website-bakery-nc1.onrender.com/api";
+const baseURL = import.meta.env.VITE_SERVER_URL || "https://restaurant1-g7zj.onrender.com/api";
 
 const api = axios.create({
   baseURL,

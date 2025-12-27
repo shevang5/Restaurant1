@@ -18,7 +18,7 @@ const app = express();
 // 'http://localhost:5173',
 // 'http://127.0.0.1:5173',
 const allowedOrigins = [
-  // "https://new-website-bakery.vercel.app",
+  "https://restaurant1-eight.vercel.app",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
   process.env.CLIENT_URL
