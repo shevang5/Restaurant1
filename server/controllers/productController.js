@@ -24,39 +24,37 @@ export const getProduct = async (req, res) => {
 export const addProduct = async (req, res) => {
   try {
     const file = req.file;
-    const { name, description, price, category } = req.body;
+    const { name, description, price, category, imageUrl } = req.body;
 
-    if (!file) return res.status(400).json({ message: "Image file required" });
+    // Accept either a file OR a URL
+    if (!file && !imageUrl) {
+      return res.status(400).json({ message: "Either an image file or image URL is required" });
+    }
 
-    // Upload image to Cloudinary
-    const streamUpload = (req) => {
-      return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "restaurant web 1" },
-          (error, result) => {
-            if (result) {
-              resolve(result);
-            } else {
-              reject(error);
+    let imageFile;
+
+    if (file) {
+      // Upload file to Cloudinary as before
+      const streamUpload = (req) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "restaurant web 1" },
+            (error, result) => {
+              if (result) resolve(result);
+              else reject(error);
             }
-          }
-        );
-        streamifier.createReadStream(req.file.buffer).pipe(stream);
-      });
-    };
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+      };
+      const result = await streamUpload(req);
+      imageFile = result.secure_url;
+    } else {
+      // Use the URL directly — no Cloudinary upload needed
+      imageFile = imageUrl;
+    }
 
-    const result = await streamUpload(req);
-    const imageFile = result.secure_url;
-
-    // Create product document
-    const product = new Product({
-      name,
-      description,
-      price,
-      category,
-      image: imageFile,
-    });
-
+    const product = new Product({ name, description, price, category, image: imageFile });
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
   } catch (error) {

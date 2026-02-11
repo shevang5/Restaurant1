@@ -30,6 +30,7 @@ const CreateProduct = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const [previewImage, setPreviewImage] = useState(null)
+  const [imageType, setImageType] = useState('file') // 'file' or 'url'
 
   // Watch form values for live preview
   const watchedValues = watch()
@@ -43,24 +44,28 @@ const CreateProduct = () => {
   }
 
   const onSubmit = async (product) => {
-    try {
-      product.id = nanoid();
+  try {
+    product.id = nanoid();
 
-      // Fix: extract the actual file from the FileList
+    if (imageType === 'file') {
       if (product.image && product.image.length > 0) {
         product.image = product.image[0];
       }
-
-      await dispatch(asyncCreateProduct(product));
-      toast.success('Product created successfully!')
-      reset();
-      setPreviewImage(null)
-      // Optional: navigate back after success or stay to create more
-    } catch (error) {
-      toast.error("Failed to create product")
-      console.error(error)
+      delete product.imageUrl;
+    } else {
+      // URL mode — remove the file field, send imageUrl
+      delete product.image;
     }
-  };
+
+    await dispatch(asyncCreateProduct(product));
+    toast.success('Product created successfully!');
+    reset();
+    setPreviewImage(null);
+  } catch (error) {
+    toast.error("Failed to create product");
+    console.error(error);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-50/50 p-4 md:p-8">
@@ -171,38 +176,86 @@ const CreateProduct = () => {
                 </div>
 
                 {/* Image Upload */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
-                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-red-400 hover:bg-red-50 transition-colors cursor-pointer relative">
-                    <div className="space-y-1 text-center">
-                      <div className="mx-auto h-12 w-12 text-gray-400">
-                        {previewImage ? (
-                          <img src={previewImage} alt="Preview" className="h-full w-full object-cover rounded-md" />
-                        ) : (
-                          <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
-                        )}
-                      </div>
-                      <div className="flex text-sm text-gray-600 justify-center">
-                        <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-red-500">
-                          <span>Upload a file</span>
-                          <input
-                            id="file-upload"
-                            type="file"
-                            className="sr-only"
-                            accept="image/*"
-                            {...register('image', {
-                              required: 'Image is required',
-                              onChange: handleImageChange
-                            })}
-                          />
-                        </label>
-                        <p className="pl-1">or drag and drop</p>
-                      </div>
-                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                    </div>
-                  </div>
-                  {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image.message}</p>}
-                </div>
+                {/* Image Upload */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+
+  {/* Toggle Tabs */}
+  <div className="flex rounded-xl overflow-hidden border border-gray-200 mb-3 w-fit">
+    <button
+      type="button"
+      onClick={() => { setImageType('file'); setPreviewImage(null); reset({ ...watchedValues, imageUrl: '' }); }}
+      className={`px-4 py-2 text-sm font-medium transition-colors ${imageType === 'file' ? 'bg-red-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+    >
+      Upload File
+    </button>
+    <button
+      type="button"
+      onClick={() => { setImageType('url'); setPreviewImage(null); }}
+      className={`px-4 py-2 text-sm font-medium transition-colors ${imageType === 'url' ? 'bg-red-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+    >
+      Image URL
+    </button>
+  </div>
+
+  {/* File Upload */}
+  {imageType === 'file' && (
+    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-red-400 hover:bg-red-50 transition-colors cursor-pointer">
+      <div className="space-y-1 text-center">
+        <div className="mx-auto h-12 w-12 text-gray-400">
+          {previewImage
+            ? <img src={previewImage} alt="Preview" className="h-full w-full object-cover rounded-md" />
+            : <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
+          }
+        </div>
+        <div className="flex text-sm text-gray-600 justify-center">
+          <label htmlFor="file-upload" className="cursor-pointer font-medium text-red-600 hover:text-red-500">
+            <span>Upload a file</span>
+            <input
+              id="file-upload"
+              type="file"
+              className="sr-only"
+              accept="image/*"
+              {...register('image', {
+                required: imageType === 'file' ? 'Image is required' : false,
+                onChange: handleImageChange
+              })}
+            />
+          </label>
+          <p className="pl-1">or drag and drop</p>
+        </div>
+        <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+      </div>
+    </div>
+  )}
+
+  {/* URL Input */}
+  {imageType === 'url' && (
+    <div>
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <ImageIcon className="h-5 w-5 text-gray-400" />
+        </div>
+        <input
+          type="url"
+          {...register('imageUrl', {
+            required: imageType === 'url' ? 'Image URL is required' : false,
+            pattern: {
+  value: /^https?:\/\/.+/i,
+  message: 'Please enter a valid URL (must start with http or https)'
+},
+            onChange: (e) => setPreviewImage(e.target.value)
+          })}
+          className="pl-10 block w-full rounded-xl border-gray-200 bg-gray-50 border focus:bg-white focus:border-red-500 focus:ring-red-500 transition-all py-2.5"
+          placeholder="https://example.com/image.jpg"
+        />
+      </div>
+      {errors.imageUrl && <p className="text-red-500 text-xs mt-1">{errors.imageUrl.message}</p>}
+    </div>
+  )}
+
+  {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image.message}</p>}
+</div>
 
 
                 {/* Submit Button */}
