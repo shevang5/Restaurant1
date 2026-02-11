@@ -28,6 +28,7 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [imageType, setImageType] = useState('file'); // 'file' or 'url'
 
   const {
     register,
@@ -68,28 +69,31 @@ const ProductDetail = () => {
 
   // Update product
   const handleEditProduct = async (data) => {
-    if (!product) return;
+  if (!product) return;
 
-    const formData = new FormData();
-    formData.append("name", data.name || product.name);
-    formData.append("price", data.price || product.price);
-    formData.append("description", data.description || product.description);
-    formData.append("category", data.category || product.category);
+  const formData = new FormData();
+  formData.append("name", data.name || product.name);
+  formData.append("price", data.price || product.price);
+  formData.append("description", data.description || product.description);
+  formData.append("category", data.category || product.category);
 
-    if (data.image && data.image.length > 0) {
-      formData.append("image", data.image[0]);
-    }
+  // Handle image based on type
+  if (imageType === 'file' && data.image && data.image.length > 0) {
+    formData.append("image", data.image[0]);
+  } else if (imageType === 'url' && data.imageUrl) {
+    formData.append("imageUrl", data.imageUrl);
+  }
 
-    try {
-      await dispatch(asyncUpdateProduct(product._id, formData));
-      alert("✅ Product updated successfully!");
-      setShowEditForm(false);
-      navigate("/products");
-    } catch (error) {
-      console.error(error);
-      alert("❌ Failed to update product");
-    }
-  };
+  try {
+    await dispatch(asyncUpdateProduct(product._id, formData));
+    alert("✅ Product updated successfully!");
+    setShowEditForm(false);
+    navigate("/products");
+  } catch (error) {
+    console.error(error);
+    alert("❌ Failed to update product");
+  }
+};
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
@@ -215,21 +219,80 @@ const ProductDetail = () => {
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Update Image</label>
-                        <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 text-center hover:border-red-300 transition-colors">
-                          <input
-                            type="file"
-                            id="image-upload"
-                            {...register("image")}
-                            className="hidden"
-                          />
-                          <label htmlFor="image-upload" className="cursor-pointer flex flex-col items-center gap-2">
-                            <ImageIcon className="w-8 h-8 text-gray-300" />
-                            <span className="text-sm text-gray-500">Click to upload new image</span>
-                          </label>
-                        </div>
-                      </div>
+                      {/* Update Image */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">Update Image</label>
+  
+  {/* Toggle Tabs */}
+  <div className="flex rounded-xl overflow-hidden border border-gray-200 mb-3 w-fit">
+    <button
+      type="button"
+      onClick={() => setImageType('file')}
+      className={`px-4 py-2 text-sm font-medium transition-colors ${
+        imageType === 'file' 
+          ? 'bg-red-600 text-white' 
+          : 'bg-white text-gray-600 hover:bg-gray-50'
+      }`}
+    >
+      Upload File
+    </button>
+    <button
+      type="button"
+      onClick={() => setImageType('url')}
+      className={`px-4 py-2 text-sm font-medium transition-colors ${
+        imageType === 'url' 
+          ? 'bg-red-600 text-white' 
+          : 'bg-white text-gray-600 hover:bg-gray-50'
+      }`}
+    >
+      Image URL
+    </button>
+  </div>
+
+  {/* File Upload */}
+  {imageType === 'file' && (
+    <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 text-center hover:border-red-300 transition-colors">
+      <input
+        type="file"
+        id="image-upload"
+        {...register("image")}
+        className="hidden"
+        accept="image/*"
+      />
+      <label htmlFor="image-upload" className="cursor-pointer flex flex-col items-center gap-2">
+        <ImageIcon className="w-8 h-8 text-gray-300" />
+        <span className="text-sm text-gray-500">Click to upload new image</span>
+        <span className="text-xs text-gray-400">Leave empty to keep current image</span>
+      </label>
+    </div>
+  )}
+
+  {/* URL Input */}
+  {imageType === 'url' && (
+    <div>
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <ImageIcon className="h-5 w-5 text-gray-400" />
+        </div>
+        <input
+          type="url"
+          {...register('imageUrl', {
+            pattern: {
+              value: /^https?:\/\/.+/i,
+              message: 'Please enter a valid URL (must start with http or https)'
+            }
+          })}
+          className="pl-10 w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+          placeholder="https://example.com/image.jpg"
+        />
+      </div>
+      {errors.imageUrl && (
+        <p className="text-red-500 text-xs mt-1">{errors.imageUrl.message}</p>
+      )}
+      <p className="text-xs text-gray-400 mt-1">Leave empty to keep current image</p>
+    </div>
+  )}
+</div>
                     </div>
 
                     <div className="flex gap-3 pt-4">

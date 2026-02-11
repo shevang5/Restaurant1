@@ -73,7 +73,7 @@ const CreateProduct = () => {
 
         {/* Header */}
         <div className="mb-8">
-          <Link to="/admin/products" className="text-gray-500 hover:text-gray-900 flex items-center gap-1 text-sm mb-2 font-medium w-fit">
+          <Link to="/products" className="text-gray-500 hover:text-gray-900 flex items-center gap-1 text-sm mb-2 font-medium w-fit">
             <ArrowLeft className="w-4 h-4" /> Back to Products
           </Link>
           <h1 className="text-3xl font-bold text-gray-900">Add New Product</h1>

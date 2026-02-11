@@ -63,33 +63,35 @@ export const addProduct = async (req, res) => {
   }
 };
 
+
+
 export const updateProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
-    // Handle optional image upload
     let imageFile = product.image;
 
+    // Handle file upload
     if (req.file) {
       const streamUpload = (req) => {
         return new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
             { folder: "restaurant web 1" },
             (error, result) => {
-              if (result) {
-                resolve(result);
-              } else {
-                reject(error);
-              }
+              if (result) resolve(result);
+              else reject(error);
             }
           );
           streamifier.createReadStream(req.file.buffer).pipe(stream);
         });
       };
-
       const result = await streamUpload(req);
       imageFile = result.secure_url;
+    } 
+    // Handle URL input
+    else if (req.body.imageUrl) {
+      imageFile = req.body.imageUrl;
     }
 
     // Update fields
