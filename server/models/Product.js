@@ -1,12 +1,24 @@
 import mongoose from "mongoose";
 
+// In your Product model file (models/Product.js)
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  description: String,
-  category: { type: String },
+  description: { type: String, required: true },
   price: { type: Number, required: true },
-  image: String,
-  stock: { type: Number, default: 0 }
+  category: { type: String, required: true },
+  image: { type: String, required: true },
+  
+  // ADD THESE TWO NEW FIELDS:
+  hasPortionOptions: {
+    type: Boolean,
+    default: false
+  },
+  halfPlatePrice: {
+    type: Number,
+    required: function() {
+      return this.hasPortionOptions;
+    }
+  }
 }, { timestamps: true });
 
 export default mongoose.model("Product", productSchema);

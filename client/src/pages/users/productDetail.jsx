@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
@@ -20,7 +20,7 @@ import {
   Tag,
   DollarSign,
   FileText,
-  Image as ImageIcon
+  Image as ImageIcon,
 } from "lucide-react";
 
 const ProductDetail = () => {
@@ -28,7 +28,8 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [imageType, setImageType] = useState('file'); // 'file' or 'url'
+  const [imageType, setImageType] = useState("file"); // 'file' or 'url'
+  const [selectedPortion, setSelectedPortion] = useState("full");
 
   const {
     register,
@@ -36,13 +37,23 @@ const ProductDetail = () => {
     formState: { errors },
   } = useForm();
 
-  const products = useSelector((state) => state.productsReducers.products) || [];
+  const products =
+    useSelector((state) => state.productsReducers.products) || [];
   const rawUser = useSelector((state) => state.usersReducer.user);
   const user = rawUser?.user || rawUser;
 
+
+  
   const product = products.find(
-    (p) => String(p.id) === String(id) || String(p._id) === String(id)
+    (p) => String(p.id) === String(id) || String(p._id) === String(id),
   );
+  console.log("🚨 PRODUCT DEBUG:", {
+  id: id,
+  product,
+  hasPortionOptions: product?.hasPortionOptions,
+  halfPlatePrice: product?.halfPlatePrice,
+  price: product?.price
+});
 
   if (!product) {
     return (
@@ -69,31 +80,31 @@ const ProductDetail = () => {
 
   // Update product
   const handleEditProduct = async (data) => {
-  if (!product) return;
+    if (!product) return;
 
-  const formData = new FormData();
-  formData.append("name", data.name || product.name);
-  formData.append("price", data.price || product.price);
-  formData.append("description", data.description || product.description);
-  formData.append("category", data.category || product.category);
+    const formData = new FormData();
+    formData.append("name", data.name || product.name);
+    formData.append("price", data.price || product.price);
+    formData.append("description", data.description || product.description);
+    formData.append("category", data.category || product.category);
 
-  // Handle image based on type
-  if (imageType === 'file' && data.image && data.image.length > 0) {
-    formData.append("image", data.image[0]);
-  } else if (imageType === 'url' && data.imageUrl) {
-    formData.append("imageUrl", data.imageUrl);
-  }
+    // Handle image based on type
+    if (imageType === "file" && data.image && data.image.length > 0) {
+      formData.append("image", data.image[0]);
+    } else if (imageType === "url" && data.imageUrl) {
+      formData.append("imageUrl", data.imageUrl);
+    }
 
-  try {
-    await dispatch(asyncUpdateProduct(product._id, formData));
-    alert("✅ Product updated successfully!");
-    setShowEditForm(false);
-    navigate("/products");
-  } catch (error) {
-    console.error(error);
-    alert("❌ Failed to update product");
-  }
-};
+    try {
+      await dispatch(asyncUpdateProduct(product._id, formData));
+      alert("✅ Product updated successfully!");
+      setShowEditForm(false);
+      navigate("/products");
+    } catch (error) {
+      console.error(error);
+      alert("❌ Failed to update product");
+    }
+  };
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
@@ -106,18 +117,35 @@ const ProductDetail = () => {
         return;
       }
 
-      const { data } = await axios.post(
-        "/cart",
-        { productId: product._id },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const cartItem = {
+  productId: product._id,
+  portion: product.hasPortionOptions ? selectedPortion : "full",
+  price: (() => {
+    if (!product.hasPortionOptions) return product.price;
+    if (selectedPortion === "half") return product.halfPlatePrice || product.price * 0.6; // fallback 60%
+    return product.price;
+  })(),
+};
+
+
+      const { data } = await axios.post("/cart", cartItem, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       dispatch(loadCart(data));
-      alert("✅ Added to Cart");
+      alert(
+        `✅ Added to Cart (${product.hasPortionOptions ? (selectedPortion === "half" ? "Half" : "Full") + " Plate" : ""})`,
+      );
     } catch (err) {
       console.log(err);
       alert("❌ Failed to add to cart");
     }
   };
+
+  // Verify data refresh
+useEffect(() => {
+  console.log("🔄 Products Redux State:", products.find(p => p._id === id));
+}, [id, products]);
+
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -166,16 +194,23 @@ const ProductDetail = () => {
                     </button>
                   </div>
 
-                  <form onSubmit={handleSubmit(handleEditProduct)} className="space-y-4">
+                  <form
+                    onSubmit={handleSubmit(handleEditProduct)}
+                    className="space-y-4"
+                  >
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Product Name
+                        </label>
                         <div className="relative">
                           <FileText className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
                           <input
                             type="text"
                             defaultValue={product.name}
-                            {...register("name", { required: "Name is required" })}
+                            {...register("name", {
+                              required: "Name is required",
+                            })}
                             className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                           />
                         </div>
@@ -183,26 +218,34 @@ const ProductDetail = () => {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Price
+                          </label>
                           <div className="relative">
                             <DollarSign className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
                             <input
                               type="number"
                               step="any"
                               defaultValue={product.price}
-                              {...register("price", { required: "Price is required" })}
+                              {...register("price", {
+                                required: "Price is required",
+                              })}
                               className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                             />
                           </div>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Category
+                          </label>
                           <div className="relative">
                             <Tag className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
                             <input
                               type="text"
                               defaultValue={product.category}
-                              {...register("category", { required: "Category is required" })}
+                              {...register("category", {
+                                required: "Category is required",
+                              })}
                               className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                             />
                           </div>
@@ -210,89 +253,168 @@ const ProductDetail = () => {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Description
+                        </label>
                         <textarea
                           defaultValue={product.description}
-                          {...register("description", { required: "Description is required" })}
+                          {...register("description", {
+                            required: "Description is required",
+                          })}
                           rows="4"
                           className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                         />
                       </div>
 
                       {/* Update Image */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Update Image
+                        </label>
+
+                        {/* Toggle Tabs */}
+                        <div className="flex rounded-xl overflow-hidden border border-gray-200 mb-3 w-fit">
+                          <button
+                            type="button"
+                            onClick={() => setImageType("file")}
+                            className={`px-4 py-2 text-sm font-medium transition-colors ${
+                              imageType === "file"
+                                ? "bg-red-600 text-white"
+                                : "bg-white text-gray-600 hover:bg-gray-50"
+                            }`}
+                          >
+                            Upload File
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setImageType("url")}
+                            className={`px-4 py-2 text-sm font-medium transition-colors ${
+                              imageType === "url"
+                                ? "bg-red-600 text-white"
+                                : "bg-white text-gray-600 hover:bg-gray-50"
+                            }`}
+                          >
+                            Image URL
+                          </button>
+                        </div>
+
+                        {/* File Upload */}
+                        {imageType === "file" && (
+                          <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 text-center hover:border-red-300 transition-colors">
+                            <input
+                              type="file"
+                              id="image-upload"
+                              {...register("image")}
+                              className="hidden"
+                              accept="image/*"
+                            />
+                            <label
+                              htmlFor="image-upload"
+                              className="cursor-pointer flex flex-col items-center gap-2"
+                            >
+                              <ImageIcon className="w-8 h-8 text-gray-300" />
+                              <span className="text-sm text-gray-500">
+                                Click to upload new image
+                              </span>
+                              <span className="text-xs text-gray-400">
+                                Leave empty to keep current image
+                              </span>
+                            </label>
+                          </div>
+                        )}
+
+                        <div className="pt-6 border-t border-gray-100 space-y-4">
+                          {/* Portion Selector - only show if product has portion options */}
+                          {product.hasPortionOptions && (
+ 
 <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Update Image</label>
-  
-  {/* Toggle Tabs */}
-  <div className="flex rounded-xl overflow-hidden border border-gray-200 mb-3 w-fit">
-    <button
-      type="button"
-      onClick={() => setImageType('file')}
-      className={`px-4 py-2 text-sm font-medium transition-colors ${
-        imageType === 'file' 
-          ? 'bg-red-600 text-white' 
-          : 'bg-white text-gray-600 hover:bg-gray-50'
-      }`}
-    >
-      Upload File
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Select Portion Size
+  </label>
+  <div className="grid grid-cols-2 gap-3">
+    <button onClick={() => setSelectedPortion("half")} className={`p-4 rounded-xl border-2 transition-all ${selectedPortion === "half" ? "border-red-600 bg-red-50 text-red-600" : "border-gray-200 hover:border-gray-300"}`}>
+      <div className="font-bold text-lg">Half Plate</div>
+      <div className="text-sm mt-1">$60.00</div> {/* Hardcoded for now */}
     </button>
-    <button
-      type="button"
-      onClick={() => setImageType('url')}
-      className={`px-4 py-2 text-sm font-medium transition-colors ${
-        imageType === 'url' 
-          ? 'bg-red-600 text-white' 
-          : 'bg-white text-gray-600 hover:bg-gray-50'
-      }`}
-    >
-      Image URL
+    <button onClick={() => setSelectedPortion("full")} className={`p-4 rounded-xl border-2 transition-all ${selectedPortion === "full" ? "border-red-600 bg-red-50 text-red-600" : "border-gray-200 hover:border-gray-300"}`}>
+      <div className="font-bold text-lg">Full Plate</div>
+      <div className="text-sm mt-1">${product.price}</div>
     </button>
   </div>
-
-  {/* File Upload */}
-  {imageType === 'file' && (
-    <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 text-center hover:border-red-300 transition-colors">
-      <input
-        type="file"
-        id="image-upload"
-        {...register("image")}
-        className="hidden"
-        accept="image/*"
-      />
-      <label htmlFor="image-upload" className="cursor-pointer flex flex-col items-center gap-2">
-        <ImageIcon className="w-8 h-8 text-gray-300" />
-        <span className="text-sm text-gray-500">Click to upload new image</span>
-        <span className="text-xs text-gray-400">Leave empty to keep current image</span>
-      </label>
-    </div>
-  )}
-
-  {/* URL Input */}
-  {imageType === 'url' && (
-    <div>
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <ImageIcon className="h-5 w-5 text-gray-400" />
-        </div>
-        <input
-          type="url"
-          {...register('imageUrl', {
-            pattern: {
-              value: /^https?:\/\/.+/i,
-              message: 'Please enter a valid URL (must start with http or https)'
-            }
-          })}
-          className="pl-10 w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-          placeholder="https://example.com/image.jpg"
-        />
-      </div>
-      {errors.imageUrl && (
-        <p className="text-red-500 text-xs mt-1">{errors.imageUrl.message}</p>
-      )}
-      <p className="text-xs text-gray-400 mt-1">Leave empty to keep current image</p>
-    </div>
-  )}
 </div>
+
+)}
+
+
+                          {/* Price Display */}
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-4xl font-bold text-gray-900">
+  $
+  {(() => {
+    if (!product.hasPortionOptions) return product.price?.toFixed(2);
+    if (selectedPortion === "half") return product.halfPlatePrice?.toFixed(2);
+    return product.price?.toFixed(2);
+  })() || '0.00'}
+</span>
+
+                            <span className="text-sm text-gray-400 font-medium">
+                              USD
+                            </span>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex flex-col sm:flex-row gap-4">
+                            <button
+                              onClick={handleAddToCart}
+                              className="flex-1 bg-red-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200 flex items-center justify-center gap-2"
+                            >
+                              <ShoppingCart className="w-5 h-5" />
+                              Add to Cart
+                              {product.hasPortionOptions && (
+                                <span className="text-sm font-normal opacity-90">
+                                  (
+                                  {selectedPortion === "half" ? "Half" : "Full"}{" "}
+                                  Plate)
+                                </span>
+                              )}
+                            </button>
+                            <button className="flex-none p-4 rounded-full border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all">
+                              <Heart className="w-6 h-6" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* URL Input */}
+                        {imageType === "url" && (
+                          <div>
+                            <div className="relative">
+                              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <ImageIcon className="h-5 w-5 text-gray-400" />
+                              </div>
+                              <input
+                                type="url"
+                                {...register("imageUrl", {
+                                  pattern: {
+                                    value: /^https?:\/\/.+/i,
+                                    message:
+                                      "Please enter a valid URL (must start with http or https)",
+                                  },
+                                })}
+                                className="pl-10 w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                                placeholder="https://example.com/image.jpg"
+                              />
+                            </div>
+                            {errors.imageUrl && (
+                              <p className="text-red-500 text-xs mt-1">
+                                {errors.imageUrl.message}
+                              </p>
+                            )}
+                            <p className="text-xs text-gray-400 mt-1">
+                              Leave empty to keep current image
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex gap-3 pt-4">
@@ -313,6 +435,7 @@ const ProductDetail = () => {
                   </form>
                 </div>
               ) : (
+                // VIEW MODE
                 // VIEW MODE
                 <div className="space-y-6">
                   <div className="flex items-start justify-between">
@@ -339,22 +462,79 @@ const ProductDetail = () => {
                     {product.description}
                   </p>
 
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold text-gray-900">${product.price}</span>
-                    <span className="text-sm text-gray-400 font-medium">USD</span>
-                  </div>
+                  {/* THIS IS THE CORRECT PLACE FOR PORTION SELECTOR */}
+                  <div className="pt-6 border-t border-gray-100 space-y-4">
+                    {/* Portion Selector - only show if product has portion options */}
+                    {product.hasPortionOptions && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Select Portion Size
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedPortion("half")}
+                            className={`p-4 rounded-xl border-2 transition-all ${
+                              selectedPortion === "half"
+                                ? "border-red-600 bg-red-50 text-red-600"
+                                : "border-gray-200 hover:border-gray-300"
+                            }`}
+                          >
+                            <div className="font-bold text-lg">Half Plate</div>
+                            <div className="text-sm mt-1">
+                              ${product.halfPlatePrice}
+                            </div>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedPortion("full")}
+                            className={`p-4 rounded-xl border-2 transition-all ${
+                              selectedPortion === "full"
+                                ? "border-red-600 bg-red-50 text-red-600"
+                                : "border-gray-200 hover:border-gray-300"
+                            }`}
+                          >
+                            <div className="font-bold text-lg">Full Plate</div>
+                            <div className="text-sm mt-1">${product.price}</div>
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
-                  <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row gap-4">
-                    <button
-                      onClick={handleAddToCart}
-                      className="flex-1 bg-red-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200 flex items-center justify-center gap-2"
-                    >
-                      <ShoppingCart className="w-5 h-5" />
-                      Add to Cart
-                    </button>
-                    <button className="flex-none p-4 rounded-full border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all">
-                      <Heart className="w-6 h-6" />
-                    </button>
+                    {/* Price Display */}
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-bold text-gray-900">
+                        $
+                        {product.hasPortionOptions
+                          ? selectedPortion === "half"
+                            ? product.halfPlatePrice
+                            : product.price
+                          : product.price}
+                      </span>
+                      <span className="text-sm text-gray-400 font-medium">
+                        USD
+                      </span>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <button
+                        onClick={handleAddToCart}
+                        className="flex-1 bg-red-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200 flex items-center justify-center gap-2"
+                      >
+                        <ShoppingCart className="w-5 h-5" />
+                        Add to Cart
+                        {product.hasPortionOptions && (
+                          <span className="text-sm font-normal opacity-90">
+                            ({selectedPortion === "half" ? "Half" : "Full"}{" "}
+                            Plate)
+                          </span>
+                        )}
+                      </button>
+                      <button className="flex-none p-4 rounded-full border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all">
+                        <Heart className="w-6 h-6" />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Additional Info / Trust Badges */}
@@ -364,8 +544,12 @@ const ProductDetail = () => {
                         <Package className="w-5 h-5" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-gray-900">Free Shipping</p>
-                        <p className="text-xs text-gray-500">On orders over $50</p>
+                        <p className="text-sm font-bold text-gray-900">
+                          Free Shipping
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          On orders over $50
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -373,8 +557,12 @@ const ProductDetail = () => {
                         <Tag className="w-5 h-5" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-gray-900">Fresh Daily</p>
-                        <p className="text-xs text-gray-500">Baked every morning</p>
+                        <p className="text-sm font-bold text-gray-900">
+                          Fresh Daily
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Baked every morning
+                        </p>
                       </div>
                     </div>
                   </div>

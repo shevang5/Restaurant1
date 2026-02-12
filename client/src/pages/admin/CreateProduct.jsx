@@ -53,8 +53,15 @@ const CreateProduct = () => {
       }
       delete product.imageUrl;
     } else {
-      // URL mode — remove the file field, send imageUrl
       delete product.image;
+    }
+
+    // Convert checkbox to boolean
+    product.hasPortionOptions = !!product.hasPortionOptions;
+    
+    // Only include halfPlatePrice if portion options are enabled
+    if (!product.hasPortionOptions) {
+      delete product.halfPlatePrice;
     }
 
     await dispatch(asyncCreateProduct(product));
@@ -157,6 +164,57 @@ const CreateProduct = () => {
                     {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
                   </div>
                 </div>
+
+                {/* After the Price field, add this new section: */}
+
+{/* Portion Options */}
+<div className="col-span-2">
+  <div className="flex items-center gap-2 mb-2">
+    <input
+      type="checkbox"
+      id="hasPortionOptions"
+      {...register('hasPortionOptions')}
+      className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+    />
+    <label htmlFor="hasPortionOptions" className="text-sm font-medium text-gray-700">
+      Enable Half/Full Plate Options
+    </label>
+  </div>
+  <p className="text-xs text-gray-500 mb-3">Allow customers to choose between half and full portions</p>
+
+  {/* Half Plate Price - only show if checkbox is checked */}
+  {watch('hasPortionOptions') && (
+    <div className="mt-3 animate-in fade-in slide-in-from-top-2 duration-200">
+      <label className="block text-sm font-medium text-gray-700 mb-1">Half Plate Price</label>
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <DollarSign className="h-5 w-5 text-gray-400" />
+        </div>
+        <input
+          type="number"
+          step="0.01"
+          {...register('halfPlatePrice', {
+            required: watch('hasPortionOptions') ? 'Half plate price is required when portion options are enabled' : false,
+            valueAsNumber: true,
+            validate: (value) => {
+              if (!watch('hasPortionOptions')) return true;
+              const fullPrice = watch('price');
+              if (value >= fullPrice) {
+                return 'Half plate price must be less than full plate price';
+              }
+              return true;
+            }
+          })}
+          className="pl-10 block w-full rounded-xl border-gray-200 bg-gray-50 border focus:bg-white focus:border-red-500 focus:ring-red-500 transition-all py-2.5"
+          placeholder="0.00"
+        />
+      </div>
+      {errors.halfPlatePrice && (
+        <p className="text-red-500 text-xs mt-1">{errors.halfPlatePrice.message}</p>
+      )}
+    </div>
+  )}
+</div>
 
                 {/* Description */}
                 <div>

@@ -2,32 +2,51 @@ import Cart from "../models/Cart.js";
 
 export const addToCart = async (req, res) => {
   try {
-    const { productId, quantity = 1 } = req.body;
+    const { productId, portion = 'full', price, quantity = 1 } = req.body;
+    
     let cart = await Cart.findOne({ user: req.user._id });
 
     if (!cart) {
       cart = await Cart.create({
         user: req.user._id,
-        items: [{ product: productId, quantity }],
+        items: [{ 
+          product: productId, 
+          portion,      // "half" OR "full"
+          price,        // 60 OR 100
+          quantity 
+        }],
       });
     } else {
+      // ✅ CRITICAL: Match by BOTH productId AND portion
       const itemIndex = cart.items.findIndex(
-        (i) => i.product.toString() === productId
+        (i) => i.product.toString() === productId && i.portion === portion
       );
+      
       if (itemIndex > -1) {
+        // Same product + same portion → increment quantity
         cart.items[itemIndex].quantity += quantity;
       } else {
-        cart.items.push({ product: productId, quantity });
+        // Different portion → create NEW cart item
+        cart.items.push({ 
+          product: productId, 
+          portion, 
+          price, 
+          quantity 
+        });
       }
       await cart.save();
     }
 
+    await cart.populate("items.product");
     res.status(200).json(cart);
   } catch (err) {
     console.error("Add to cart error:", err);
     res.status(500).json({ message: err.message });
   }
 };
+
+
+
 
 
 export const getCart = async (req, res) => {

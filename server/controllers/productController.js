@@ -24,9 +24,8 @@ export const getProduct = async (req, res) => {
 export const addProduct = async (req, res) => {
   try {
     const file = req.file;
-    const { name, description, price, category, imageUrl } = req.body;
+    const { name, description, price, category, imageUrl, hasPortionOptions, halfPlatePrice } = req.body;
 
-    // Accept either a file OR a URL
     if (!file && !imageUrl) {
       return res.status(400).json({ message: "Either an image file or image URL is required" });
     }
@@ -50,11 +49,29 @@ export const addProduct = async (req, res) => {
       const result = await streamUpload(req);
       imageFile = result.secure_url;
     } else {
-      // Use the URL directly — no Cloudinary upload needed
+      // Use the URL directly
       imageFile = imageUrl;
     }
 
-    const product = new Product({ name, description, price, category, image: imageFile });
+    // Create product with portion options
+    const productData = {
+      name,
+      description,
+      price,
+      category,
+      image: imageFile,
+      hasPortionOptions: hasPortionOptions === 'true' || hasPortionOptions === true,
+    };
+
+    // Only add halfPlatePrice if portion options are enabled
+    if (productData.hasPortionOptions && halfPlatePrice) {
+      const parsedHalfPrice = parseFloat(halfPlatePrice);
+      if (isNaN(parsedHalfPrice) || parsedHalfPrice <= 0) {
+        return res.status(400).json({ message: "Invalid halfPlatePrice value" });
+      }
+      productData.halfPlatePrice = parsedHalfPrice;
+    }
+    const product = new Product(productData);
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
   } catch (error) {
@@ -100,7 +117,18 @@ export const updateProduct = async (req, res) => {
     product.price = req.body.price || product.price;
     product.category = req.body.category || product.category;
     product.image = imageFile;
-
+    
+    // ADD THESE LINES FOR PORTION OPTIONS:
+    product.hasPortionOptions = req.body.hasPortionOptions === 'true' || req.body.hasPortionOptions === true;
+    if (product.hasPortionOptions && req.body.halfPlatePrice) {
+      const parsedHalfPrice = parseFloat(req.body.halfPlatePrice);
+      if (isNaN(parsedHalfPrice) || parsedHalfPrice <= 0) {
+        return res.status(400).json({ message: "Invalid halfPlatePrice value" });
+      }
+      product.halfPlatePrice = parsedHalfPrice;
+    } else if (!product.hasPortionOptions) {
+      product.halfPlatePrice = undefined;
+    }
     const updated = await product.save();
     res.json(updated);
   } catch (error) {
