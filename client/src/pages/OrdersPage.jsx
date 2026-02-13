@@ -58,8 +58,6 @@ export default function MyOrders() {
 
       {sortedOrders.map((order) => {
         const statusIndex = statusOrder.indexOf(order.status);
-        console.log(order);
-
 
         return (
           <div key={order._id} className="relative bg-white p-4 mb-6 rounded shadow-md">

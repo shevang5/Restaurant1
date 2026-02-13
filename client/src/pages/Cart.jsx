@@ -190,7 +190,6 @@ const total = safeCart.reduce((sum, item) => {
                 <h2 className="font-bold text-gray-700">Order Summary</h2>
               </div>
               {cart.items.map((item) => (
-                console.log("🛒 FULL CART:", JSON.stringify(cart?.items, null, 2)),
                 <div
                   key={item._id}
                   className="flex items-center gap-4 p-4 border-b last:border-0 hover:bg-gray-50 transition"

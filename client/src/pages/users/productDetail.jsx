@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
@@ -47,13 +47,6 @@ const ProductDetail = () => {
   const product = products.find(
     (p) => String(p.id) === String(id) || String(p._id) === String(id),
   );
-  console.log("🚨 PRODUCT DEBUG:", {
-  id: id,
-  product,
-  hasPortionOptions: product?.hasPortionOptions,
-  halfPlatePrice: product?.halfPlatePrice,
-  price: product?.price
-});
 
   if (!product) {
     return (
@@ -140,12 +133,6 @@ const ProductDetail = () => {
       alert("❌ Failed to add to cart");
     }
   };
-
-  // Verify data refresh
-useEffect(() => {
-  console.log("🔄 Products Redux State:", products.find(p => p._id === id));
-}, [id, products]);
-
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

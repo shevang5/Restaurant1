@@ -54,23 +54,6 @@ export const getCart = async (req, res) => {
   res.json(cart);
 };
 
-export const removeFromCart = async (req, res) => {
-  try {
-    // productId comes from the URL param (DELETE /cart/:productId)
-    const { productId } = req.params;
-    const cart = await Cart.findOneAndUpdate(
-      { user: req.user._id },
-      { $pull: { items: { product: productId } } },
-      { new: true }
-    ).populate("items.product");
-
-    res.json(cart);
-  } catch (err) {
-    console.error("Remove from cart error:", err);
-    res.status(500).json({ message: err.message });
-  }
-};
-
 export const removeItemFromCart = async (req, res) => {
   try {
     const { itemId } = req.params;
