@@ -8,21 +8,28 @@ import { Search, ShoppingCart, ChefHat, ArrowLeft, Utensils } from "lucide-react
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const res = await axios.get("/products");
+      setProducts(res.data);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      setError(
+        err.userMessage ||
+          "Unable to load products right now. The server may be waking up, please retry."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get("/products");
-        setProducts(res.data);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchProducts();
   }, []);
 
@@ -86,6 +93,20 @@ const Products = () => {
                 <div className="h-10 bg-gray-200 rounded-full mt-auto w-full"></div>
               </div>
             ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-20">
+            <div className="mx-auto w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mb-4">
+              <ChefHat className="w-10 h-10 text-red-300" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-800">Products not available yet</h3>
+            <p className="text-gray-500 mt-2">{error}</p>
+            <button
+              onClick={fetchProducts}
+              className="mt-6 bg-red-600 text-white px-5 py-2.5 rounded-full font-semibold hover:bg-red-700 transition-colors"
+            >
+              Retry
+            </button>
           </div>
         ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">

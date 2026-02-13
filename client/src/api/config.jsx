@@ -6,6 +6,7 @@ const baseURL = import.meta.env.VITE_SERVER_URL || "https://restaurant1-g7zj.onr
 // Create axios instance with default config
 const config = axios.create({
   baseURL,
+  timeout: 15000,
   withCredentials: true, // Important for sending cookies and auth headers cross-origin
   headers: {
     // default Accept only; don't force Content-Type globally because
@@ -61,6 +62,10 @@ config.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (error.code === "ECONNABORTED") {
+      error.userMessage = "Server took too long to respond. Please try again.";
+    }
+
     console.error('API Error:', {
       message: error.message,
       status: error.response?.status,

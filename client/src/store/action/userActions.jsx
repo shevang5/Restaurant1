@@ -8,7 +8,8 @@ export const asyncRegisterUser = (user) => async (dispatch) => {
     dispatch(loadUser(data));
     console.log("✅ User registered:", data);
   } catch (error) {
-    alert(error.response?.data?.message || "Registration failed");
+    alert(error.userMessage || error.response?.data?.message || "Registration failed");
+    throw error;
   }
 };
 
@@ -19,7 +20,8 @@ export const asyncLoginUsers = (user) => async (dispatch) => {
     dispatch(loadUser(data));
     console.log("✅ User logged in:", data);
   } catch (error) {
-    alert(error.response?.data?.message || "Login failed");
+    alert(error.userMessage || error.response?.data?.message || "Login failed");
+    throw error;
   }
 };
 

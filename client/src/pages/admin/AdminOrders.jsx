@@ -306,11 +306,22 @@ export default function AdminOrders() {
                               className="w-10 h-10 object-cover rounded bg-gray-100" // Reduced image size
                             />
                             <div className="flex-1 min-w-0">
-                              <p className="text-[15px] font-medium text-gray-900 truncate">{item.product?.name}</p> {/* Reduced text size */}
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <p className="text-[15px] font-medium text-gray-900 truncate">{item.product?.name}</p> {/* Reduced text size */}
+                                {item.portion && (
+                                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                                    item.portion === "half" 
+                                      ? "bg-orange-100 text-orange-700 border border-orange-200" 
+                                      : "bg-blue-100 text-blue-700 border border-blue-200"
+                                  }`}>
+                                    {item.portion === "half" ? "🍽️ Half" : "🍽️ Full"}
+                                  </span>
+                                )}
+                              </div>
                               <p className="text-[12px] text-gray-500">Qty: {item.quantity}</p> {/* Reduced text size */}
                             </div>
                             <p className="text-xs font-semibold text-gray-900">
-                              ${(item.quantity * item.product?.price).toFixed(2)}
+                              ${(item.quantity * (item.price || item.product?.price)).toFixed(2)}
                             </p>
                           </div>
                         ))}

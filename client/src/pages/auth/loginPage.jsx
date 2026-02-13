@@ -11,14 +11,21 @@ const LoginPage = () => {
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotMsg, setForgotMsg] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(asyncLoginUsers({ email, password }))
-      .then(() => navigate('/'))
-      .catch((error) => console.log(error));
+    try {
+      setLoginLoading(true);
+      await dispatch(asyncLoginUsers({ email, password }));
+      navigate('/');
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
   const handleForgot = async (e) => {
@@ -121,9 +128,10 @@ const LoginPage = () => {
             <div>
               <button
                 type="submit"
+                disabled={loginLoading}
                 className="w-full flex justify-center py-4 px-4 rounded-xl text-lg font-bold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary)]/20 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-[0.98]"
               >
-                Login to LA Bakery
+                {loginLoading ? 'Signing in...' : 'Login to LA Bakery'}
               </button>
             </div>
 
