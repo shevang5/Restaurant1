@@ -9,7 +9,9 @@ const orderSchema = new mongoose.Schema({
   products: [
     {
       product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
-      quantity: Number
+      quantity: Number,
+      portion: { type: String, enum: ["half", "full"], default: "full" },
+      price: Number
     }
   ],
   total: Number,

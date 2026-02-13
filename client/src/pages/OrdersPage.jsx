@@ -95,9 +95,22 @@ export default function MyOrders() {
                   <div className="flex items-center">
                     <img src={item.product?.image} alt={item.product?.name} className="w-20 h-20 object-cover rounded mr-4" />
                     <div>
-                      <p className="font-semibold">{item.product?.name}</p>
-                      <p className="text-gray-600">Quantity: {item.quantity}</p>
-                      <p className="text-gray-600">Price: ${item.product?.price?.toFixed(2)}</p>
+                      {(() => {
+                        const itemPrice =
+                          item.price ??
+                          (item.portion === "half" ? item.product?.halfPlatePrice : item.product?.price) ??
+                          item.product?.price;
+                        return (
+                          <>
+                            <p className="font-semibold">
+                              {item.product?.name}
+                              {item.portion ? ` (${item.portion === "half" ? "Half" : "Full"})` : ""}
+                            </p>
+                            <p className="text-gray-600">Quantity: {item.quantity}</p>
+                            <p className="text-gray-600">Price: ${Number(itemPrice || 0).toFixed(2)}</p>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>

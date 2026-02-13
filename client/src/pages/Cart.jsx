@@ -61,7 +61,7 @@ const Cart = () => {
 
   const removeItem = async (id) => {
     try {
-      await axios.delete(`/cart/${id}`);
+      await axios.delete(`/cart/item/${id}`);
       fetchCart();
     } catch (err) {
       console.log(err);
@@ -89,17 +89,21 @@ const Cart = () => {
       }
 
       const orderData = {
-  products: cart.items.map((item) => ({
-    
-
-    product: item.product._id,
-    quantity: item.quantity,
-    portion: item.portion, // ✅ Send portion too
-  })),
-  total: cart.items.reduce((sum, item) => sum + (item.price || item.product.price) * item.quantity, 0), // ✅ Use item.price
-  deliveryType,
-  // ...
-};
+        products: cart.items.map((item) => ({
+          product: item.product._id,
+          quantity: item.quantity,
+          portion: item.portion,
+          price: item.price || item.product.price,
+        })),
+        total: cart.items.reduce(
+          (sum, item) => sum + (item.price || item.product.price) * item.quantity,
+          0
+        ),
+        deliveryType,
+        ...(deliveryType === "home"
+          ? { address: selectedInfo }
+          : { pickup: selectedInfo }),
+      };
 
 
       if (paymentMethod === "offline") {
@@ -201,24 +205,18 @@ const total = safeCart.reduce((sum, item) => {
                       {item.product?.name}
                     </h3>
                     {/* ✅ CORRECT - Show SELECTED portion price */}
-<p className="text-indigo-600 font-medium flex items-center gap-2">
-  {/* ✅ SMART PRICE: Use product.halfPlatePrice if available */}
-  ${item.product?.hasPortionOptions && item.product.halfPlatePrice 
-    ? item.product.halfPlatePrice 
-    : item.product?.price
-  }
-  
-  {/* Show portion badge if half plate product */}
-  {item.product?.hasPortionOptions && item.product.halfPlatePrice && (
-    <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">
-      Half Plate Available
-    </span>
-  )}
-</p>
+                    <p className="text-indigo-600 font-medium flex items-center gap-2">
+                      ${Number(item.price || item.product?.price || 0).toFixed(2)}
+                      {item.portion && (
+                        <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">
+                          {item.portion === "half" ? "Half Plate" : "Full Plate"}
+                        </span>
+                      )}
+                    </p>
 
 
                     <button
-                      onClick={() => removeItem(item.product._id)}
+                      onClick={() => removeItem(item._id)}
                       className="text-xs text-red-400 hover:text-red-600 mt-1"
                     >
                       Remove

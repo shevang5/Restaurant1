@@ -1,16 +1,69 @@
 import Order from "../models/Order.js";
 import Cart from "../models/Cart.js";
+import Product from "../models/Product.js";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 
+const buildOrderProducts = async (user, incomingProducts = []) => {
+  if (user?._id) {
+    const cart = await Cart.findOne({ user: user._id }).populate("items.product");
+    if (cart?.items?.length) {
+      const products = cart.items.map((item) => ({
+        product: item.product?._id || item.product,
+        quantity: item.quantity || 1,
+        portion: item.portion === "half" ? "half" : "full",
+        price: Number(item.price || item.product?.price || 0),
+      }));
+
+      const total = products.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      return { products, total };
+    }
+  }
+
+  if (!incomingProducts?.length) {
+    const err = new Error("No products in order");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const productIds = incomingProducts.map((p) => p.product);
+  const productDocs = await Product.find({ _id: { $in: productIds } });
+  const productMap = new Map(productDocs.map((p) => [String(p._id), p]));
+
+  const products = incomingProducts.map((item) => {
+    const doc = productMap.get(String(item.product));
+    if (!doc) {
+      const err = new Error("One or more products are invalid");
+      err.statusCode = 400;
+      throw err;
+    }
+
+    const portion = doc.hasPortionOptions && item.portion === "half" ? "half" : "full";
+    const price =
+      portion === "half" && doc.hasPortionOptions
+        ? Number(doc.halfPlatePrice || doc.price)
+        : Number(doc.price);
+
+    return {
+      product: item.product,
+      quantity: Math.max(1, Number(item.quantity || 1)),
+      portion,
+      price,
+    };
+  });
+
+  const total = products.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  return { products, total };
+};
+
 export const createOrder = async (req, res) => {
   try {
-    const { products, total, deliveryType, address, pickup, customerDetails } = req.body;
+    const { products, deliveryType, address, pickup, customerDetails } = req.body;
 
-    // Validate products
-    if (!products || !products.length) {
-      return res.status(400).json({ message: "No products in order" });
-    }
+    const { products: normalizedProducts, total: computedTotal } = await buildOrderProducts(
+      req.user,
+      products
+    );
 
     // If home delivery requested, ensure address is provided
     if (deliveryType === "home") {
@@ -28,8 +81,8 @@ export const createOrder = async (req, res) => {
 
     // Create order (include delivery fields if provided)
     const orderPayload = {
-      products, // [{ product: productId, quantity }]
-      total,
+      products: normalizedProducts,
+      total: Number(computedTotal),
       deliveryType: deliveryType || "pickup",
     };
 
@@ -75,6 +128,9 @@ export const createOrder = async (req, res) => {
     res.status(201).json(order);
   } catch (error) {
     console.error(error);
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     res.status(500).json({ message: "Failed to create order" });
   }
 };
@@ -131,7 +187,11 @@ export const cancelOrder = async (req, res) => {
 
 export const createRazorpayOrder = async (req, res) => {
   try {
-    const { products, total, deliveryType, address, pickup, customerDetails } = req.body;
+    const { products, deliveryType, address, pickup, customerDetails } = req.body;
+    const { products: normalizedProducts, total: computedTotal } = await buildOrderProducts(
+      req.user,
+      products
+    );
 
     const instance = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
@@ -140,8 +200,8 @@ export const createRazorpayOrder = async (req, res) => {
 
     // 1. Create order in our database first
     const orderPayload = {
-      products,
-      total,
+      products: normalizedProducts,
+      total: Number(computedTotal),
       deliveryType: deliveryType || "pickup",
       status: "pending",
     };
@@ -165,7 +225,7 @@ export const createRazorpayOrder = async (req, res) => {
 
     // 2. Create Razorpay order
     const options = {
-      amount: Math.round(total * 100), // amount in smallest currency unit (paise)
+      amount: Math.round(computedTotal * 100), // amount in smallest currency unit (paise)
       currency: "INR",
       receipt: `receipt_${order._id}`,
     };
@@ -186,6 +246,9 @@ export const createRazorpayOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Razorpay order creation error:", error);
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
