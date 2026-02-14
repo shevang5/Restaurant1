@@ -123,7 +123,7 @@ const Cart = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
-        name: "Cali Bistro",
+        name: "Restaurant",
         order_id: razorpayOrder.id,
         handler: async (res) => {
           await axios.post("/orders/verify", res);
@@ -379,3 +379,4 @@ const total = safeCart.reduce((sum, item) => {
 };
 
 export default Cart;
+

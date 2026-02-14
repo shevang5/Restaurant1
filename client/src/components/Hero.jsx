@@ -33,11 +33,11 @@ const Hero = () => {
                     <h1 className="text-2xl md:text-6xl font-bold leading-tight mb-4">
                         Exquisite Dining. <br className="md:block hidden" />
                         Memorable Moments <br />
-                        Every Day at Cali Bistro.
+                        Every Day at Restaurant.
                     </h1>
 
                     <p className="text-lg mb-8 opacity-90 max-w-md font-light">
-                        Cali Bistro has arrived at Crenshaw Village Plaza — serving gourmet dishes,
+                        Restaurant has arrived at Crenshaw Village Plaza — serving gourmet dishes,
                         seasonal specialties, and signature cocktails every day.
                     </p>
 
@@ -95,3 +95,4 @@ const Hero = () => {
 };
 
 export default Hero;
+

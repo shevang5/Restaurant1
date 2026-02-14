@@ -60,13 +60,10 @@ const Navbar = () => {
           <div className="flex items-center gap-4">
             <NavLink to="/" className="flex items-center gap-2">
               <div className="p-1 rounded-full border-2 border-orange-500">
-                <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">
-                  CB
-                </div>
+                <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">R</div>
               </div>
               <div className="flex flex-col leading-tight">
-                <span className="text-red-600 font-bold text-lg tracking-wide">CALI</span>
-                <span className="text-blue-900 font-bold text-sm tracking-widest">BISTRO</span>
+                <span className="text-red-600 font-bold text-lg tracking-wide">RESTAURANT</span>
               </div>
             </NavLink>
 
@@ -351,3 +348,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

@@ -11,7 +11,7 @@ const About = () => {
             {/* Central Content */}
             <div className="relative z-10 text-center max-w-4xl px-4">
                 <h2 className="text-3xl md:text-5xl  font-bold text-[var(--color-primary)] leading-tight mb-4">
-                    Cali Bistro is Hawthorne’s newest spot for gourmet dining, seasonal dishes, and crafted cocktails. <span className="text-[#888] font-medum text-3xl md:text-4xl">Located in Crenshaw Village Plaza, we proudly serve the community daily with artisanal flavors,
+                    Restaurant is Hawthorne’s newest spot for gourmet dining, seasonal dishes, and crafted cocktails. <span className="text-[#888] font-medum text-3xl md:text-4xl">Located in Crenshaw Village Plaza, we proudly serve the community daily with artisanal flavors,
                         warm service, and a sophisticated experience for everyone.</span>
                 </h2>
 
@@ -67,3 +67,4 @@ const About = () => {
 };
 
 export default About;
+

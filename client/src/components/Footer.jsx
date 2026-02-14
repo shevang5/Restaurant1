@@ -11,7 +11,7 @@ const Footer = () => {
                 <div className="container mx-auto px-6 text-center relative z-10">
                     <h2 className="text-3xl md:text-5xl font-serif font-medium text-white mb-8 leading-tight">
                         Join us for an exquisite <br />
-                        culinary journey at Cali Bistro <br />
+                        culinary journey at Restaurant <br />
                         prepared with passion!
                     </h2>
                     <button className="bg-white text-[var(--color-primary)] px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors shadow-lg">
@@ -32,7 +32,7 @@ const Footer = () => {
                                 </div>
                             </div>
                             <div className="flex flex-col leading-tight text-white">
-                                <span className="font-bold text-xl tracking-wide">Cali Bistro</span>
+                                <span className="font-bold text-xl tracking-wide">Restaurant</span>
                                 <span className="font-bold text-sm tracking-widest opacity-80">GASTRO-KITCHEN</span>
                             </div>
                         </div>
@@ -52,7 +52,7 @@ const Footer = () => {
                                 <div className="w-6 h-6 bg-white rounded-sm"></div> {/* Icon placeholder */}
                                 <div className="flex flex-col items-start leading-none">
                                     <span className="text-[10px] uppercase">visit on the</span>
-                                    <span className="text-sm font-bold">calibistro.com</span>
+                                    <span className="text-sm font-bold">restaurant.com</span>
                                 </div>
                             </button>
                         </div>
@@ -78,7 +78,7 @@ const Footer = () => {
                     </div>
 
                     <div className="text-center text-white/50 text-xs mt-8">
-                        © 2025 Cali Bistro, Inc. All Rights Reserved
+                        © 2025 Restaurant, Inc. All Rights Reserved
                     </div>
                 </div>
             </div>
@@ -87,3 +87,4 @@ const Footer = () => {
 };
 
 export default Footer;
+
