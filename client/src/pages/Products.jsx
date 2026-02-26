@@ -65,23 +65,27 @@ const Products = () => {
             />
           </div>
 
-          <div className="flex gap-2 overflow-x-auto w-full md:w-auto md:pb-3 md:px-5 px-2 py-2 scrollbar-hide">
+            <div className="flex">
+          
+
+
+          <div className="hidden md:flex gap-2 overflow-x-auto w-full md:w-auto md:pb-3 md:px-5 px-2 py-1 scrollbar-hide">
             {categories.map((cat) => (
               <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-1 z-50 rounded-full text-sm font-medium transition-all whitespace-nowrap border ${
-                  selectedCategory === cat
-                    ? "bg-red-600 z-50 text-white border-red-600 shadow-lg  scale-105"
-                    : "bg-white z-50 text-gray-600 border-gray-200 hover:border-pink-300 hover:text-red-600 hover:bg-pink-50"
-                }`}
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-1 z-50 rounded-full text-sm font-medium transition-all whitespace-nowrap border ${
+                selectedCategory === cat
+                ? "bg-red-600 z-50 text-white border-red-600 shadow-lg  scale-105"
+                : "bg-white z-50 text-gray-600 border-gray-200 hover:border-pink-300 hover:text-red-600 hover:bg-pink-50"
+              }`}
               >
                 {cat}
               </button>
             ))}
           </div>
 
-          <div className="flex gap-2 w-full md:w-auto px-2">
+          <div className="flex  gap-2 w-full md:w-auto px-2">
             <button
               onClick={() => setSelectedFoodType("All")}
               className={`px-4 py-1 rounded-full text-sm font-medium border transition-all ${
@@ -96,8 +100,8 @@ const Products = () => {
               onClick={() => setSelectedFoodType("veg")}
               className={`px-4 py-1 rounded-full text-sm font-medium border transition-all ${
                 selectedFoodType === "veg"
-                  ? "bg-green-600 text-white border-green-600 shadow-md"
-                  : "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
+                ? "bg-green-600 text-white border-green-600 shadow-md"
+                : "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
               }`}
             >
               Veg
@@ -106,19 +110,35 @@ const Products = () => {
               onClick={() => setSelectedFoodType("nonveg")}
               className={`px-4 py-1 rounded-full text-sm font-medium border transition-all ${
                 selectedFoodType === "nonveg"
-                  ? "bg-red-600 text-white border-red-600 shadow-md"
-                  : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                ? "bg-red-600 text-white border-red-600 shadow-md"
+                : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
               }`}
-            >
+              >
               Nonveg
             </button>
           </div>
+          <div className="md:hidden">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+            >
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+              </div>
+
+
         </div>
       </div>
 
       <div className="max-w-7xl z-50 mx-auto px-4 py-8 md:py-12">
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="animate-pulse -z-10 flex flex-col h-full bg-white rounded-2xl border border-gray-100 p-3">
                 <div className="bg-gray-200 h-48 rounded-xl mb-4 w-full"></div>
@@ -143,7 +163,7 @@ const Products = () => {
             </button>
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
             {filteredProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
