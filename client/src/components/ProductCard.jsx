@@ -91,11 +91,11 @@ const ProductCard = ({ product }) => {
         <div className="mt-auto flex flex-col items-left justify-between gap-3 pt-1 md:pt-4  relative">
           {product.hasPortionOptions ? (
             <div className="text-md flex w-full  text-gray-900 leading-tight">
-              <div>Full: ${Number(product.price).toFixed()}</div>
-              <div className="text-[#858585] px-2 flex">| Half {Number(product.halfPlatePrice || product.price).toFixed()}</div>
+              <div>Full: ₹{Number(product.price).toFixed()}</div>
+              <div className="text-[#858585] px-2 flex">| Half ₹{Number(product.halfPlatePrice || product.price).toFixed()}</div>
             </div>
           ) : (
-            <span className="text-xl  text-gray-900">${Number(product.price).toFixed()}</span>
+            <span className="text-xl  text-gray-900">₹{Number(product.price).toFixed()}</span>
           )}
 
           <button
@@ -129,7 +129,7 @@ const ProductCard = ({ product }) => {
                 >
                   <Utensils className="w-4 h-4" />
                   <span className="flex-1 text-left">Half Plate</span>
-                  <span className="text-[10px] font-bold">${Number(product.halfPlatePrice || product.price).toFixed(2)}</span>
+                  <span className="text-[10px] font-bold">₹{Number(product.halfPlatePrice || product.price).toFixed(2)}</span>
                 </button>
                 <button
                   type="button"
@@ -138,7 +138,7 @@ const ProductCard = ({ product }) => {
                 >
                   <Utensils className="w-4 h-4" />
                   <span className="flex-1 text-left">Full Plate</span>
-                  <span className="text-[10px] font-bold">${Number(product.price).toFixed(2)}</span>
+                  <span className="text-[10px] font-bold">₹{Number(product.price).toFixed(2)}</span>
                 </button>
               </div>
             </div>
@@ -150,3 +150,4 @@ const ProductCard = ({ product }) => {
 };
 
 export default ProductCard;
+

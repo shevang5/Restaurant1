@@ -6,6 +6,12 @@ const productSchema = new mongoose.Schema({
   description: { type: String, required: true },
   price: { type: Number, required: true },
   category: { type: String, required: true },
+  foodType: {
+    type: String,
+    enum: ["veg", "nonveg"],
+    default: "veg",
+    required: true
+  },
   image: { type: String, required: true },
   
   // ADD THESE TWO NEW FIELDS:

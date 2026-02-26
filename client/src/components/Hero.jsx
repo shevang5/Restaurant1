@@ -37,7 +37,7 @@ const Hero = () => {
                     </h1>
 
                     <p className="text-lg mb-8 opacity-90 max-w-md font-light">
-                        Restaurant has arrived at Crenshaw Village Plaza — serving gourmet dishes,
+                        Restaurant has arrived at Crenshaw Village Plaza - serving gourmet dishes,
                         seasonal specialties, and signature cocktails every day.
                     </p>
 
@@ -69,7 +69,7 @@ const Hero = () => {
                         sandwiches
                     </h3>
                     <div className="flex items-center justify-between mt-4">
-                        <span className="text-gray-900 font-bold text-lg">$8.95</span>
+                        <span className="text-gray-900 font-bold text-lg">₹8.95</span>
                         <button onClick={() => navigate('/products')} className="flex items-center gap-2 border border-gray-200 px-3 py-2 rounded-lg text-sm font-medium hover:border-gray-400 transition-colors">
                             <ShoppingBag className="w-4 h-4" />
                             Add to Cart
@@ -95,4 +95,5 @@ const Hero = () => {
 };
 
 export default Hero;
+
 

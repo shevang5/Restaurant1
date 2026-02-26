@@ -22,12 +22,12 @@ import 'swiper/css/pagination';
 */
 
 const products = [
-    { id: 1, name: 'Grilled Atlantic Salmon', description: 'Fresh salmon fillet served with roasted seasonal vegetables and lemon butter sauce.', price: '$24.95', image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=1374&auto=format&fit=crop' },
-    { id: 2, name: 'Classic Pepperoni Pizza', description: 'Hand-tossed dough, premium mozzarella, spicy pepperoni, and our secret tomato sauce.', price: '$18.45', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1470&auto=format&fit=crop' },
-    { id: 3, name: 'Signature Wagyu Burger', description: 'Premium Wagyu beef, truffle aioli, caramelized onions, and aged cheddar on a brioche bun.', price: '$19.95', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1599&auto=format&fit=crop' },
-    { id: 4, name: 'Truffle Mushroom Pasta', description: 'Creamy fettuccine with wild mushrooms, truffle oil, and fresh parmesan.', price: '$21.95', image: 'https://images.unsplash.com/photo-1473093226795-af9932fe5856?q=80&w=1394&auto=format&fit=crop' },
-    { id: 5, name: 'Herb-Roasted Chicken', description: 'Free-range chicken breast roasted with rosemary and garlic, served with mashed potatoes.', price: '$22.50', image: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?q=80&w=1376&auto=format&fit=crop' },
-    { id: 6, name: 'Filet Mignon', description: '8oz premium cut steak cooked to perfection with a red wine reduction.', price: '$34.95', image: 'https://images.unsplash.com/photo-1546241072-48010ad28c2c?q=80&w=1374&auto=format&fit=crop' },
+    { id: 1, name: 'Grilled Atlantic Salmon', description: 'Fresh salmon fillet served with roasted seasonal vegetables and lemon butter sauce.', price: '₹24.95', image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=1374&auto=format&fit=crop' },
+    { id: 2, name: 'Classic Pepperoni Pizza', description: 'Hand-tossed dough, premium mozzarella, spicy pepperoni, and our secret tomato sauce.', price: '₹18.45', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1470&auto=format&fit=crop' },
+    { id: 3, name: 'Signature Wagyu Burger', description: 'Premium Wagyu beef, truffle aioli, caramelized onions, and aged cheddar on a brioche bun.', price: '₹19.95', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1599&auto=format&fit=crop' },
+    { id: 4, name: 'Truffle Mushroom Pasta', description: 'Creamy fettuccine with wild mushrooms, truffle oil, and fresh parmesan.', price: '₹21.95', image: 'https://images.unsplash.com/photo-1473093226795-af9932fe5856?q=80&w=1394&auto=format&fit=crop' },
+    { id: 5, name: 'Herb-Roasted Chicken', description: 'Free-range chicken breast roasted with rosemary and garlic, served with mashed potatoes.', price: '₹22.50', image: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?q=80&w=1376&auto=format&fit=crop' },
+    { id: 6, name: 'Filet Mignon', description: '8oz premium cut steak cooked to perfection with a red wine reduction.', price: '₹34.95', image: 'https://images.unsplash.com/photo-1546241072-48010ad28c2c?q=80&w=1374&auto=format&fit=crop' },
 ];
 
 const BestSellers = () => {
@@ -135,3 +135,4 @@ const BestSellers = () => {
 };
 
 export default BestSellers;
+

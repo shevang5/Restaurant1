@@ -7,7 +7,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
   Upload,
-  DollarSign,
   Tag,
   Type,
   AlignLeft,
@@ -25,7 +24,11 @@ const CreateProduct = () => {
     reset,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm()
+  } = useForm({
+    defaultValues: {
+      foodType: "veg",
+    },
+  })
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -58,6 +61,7 @@ const CreateProduct = () => {
 
     // Convert checkbox to boolean
     product.hasPortionOptions = !!product.hasPortionOptions;
+    product.foodType = product.foodType || "veg";
     
     // Only include halfPlatePrice if portion options are enabled
     if (!product.hasPortionOptions) {
@@ -127,16 +131,13 @@ const CreateProduct = () => {
                         className="pl-10 block w-full rounded-xl border-gray-200 bg-gray-50 border focus:bg-white focus:border-red-500 focus:ring-red-500 transition-all py-2.5 appearance-none"
                       >
                         <option value="">Select Category</option>
-                        <option value="breads">Breads</option>
-                        <option value="pastries">Pastries</option>
-                        <option value="cakes-cupcakes">Cakes & Cupcakes</option>
-                        <option value="cookies">Cookies</option>
-                        <option value="pies-tarts">Pies & Tarts</option>
-                        <option value="donuts">Donuts & Fried Treats</option>
-                        <option value="breakfast-savory">Breakfast & Savory Items</option>
-                        <option value="drinks">Drinks</option>
-                        <option value="seasonal-specialty">Seasonal & Specialty Items</option>
-                        <option value="other">Other</option>
+                        <option value="seasonal-specialty">seasonal-specialty</option>
+                        <option value="gravy-veg">gravy-veg</option>
+                        <option value="starter-chinese-veg">starter-chinese-veg</option>
+                        <option value="dry-veg">dry-veg</option>
+                        <option value="gravy-nonveg">gravy-nonveg</option>
+                        <option value="starter-chinese-nonveg">starter-chinese-nonveg</option>
+                        <option value="dry-nonveg">dry-nonveg</option>
                       </select>
                     </div>
                     {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category.message}</p>}
@@ -147,7 +148,7 @@ const CreateProduct = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <DollarSign className="h-5 w-5 text-gray-400" />
+                        <span className="h-5 w-5 text-gray-400 font-semibold">₹</span>
                       </div>
                       <input
                         type="number"
@@ -163,6 +164,31 @@ const CreateProduct = () => {
                     </div>
                     {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Food Type</label>
+                  <div className="flex gap-6">
+                    <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+                      <input
+                        type="radio"
+                        value="veg"
+                        {...register("foodType", { required: "Food type is required" })}
+                        className="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+                      />
+                      Veg
+                    </label>
+                    <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+                      <input
+                        type="radio"
+                        value="nonveg"
+                        {...register("foodType", { required: "Food type is required" })}
+                        className="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-500"
+                      />
+                      Nonveg
+                    </label>
+                  </div>
+                  {errors.foodType && <p className="text-red-500 text-xs mt-1">{errors.foodType.message}</p>}
                 </div>
 
                 {/* After the Price field, add this new section: */}
@@ -188,7 +214,7 @@ const CreateProduct = () => {
       <label className="block text-sm font-medium text-gray-700 mb-1">Half Plate Price</label>
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <DollarSign className="h-5 w-5 text-gray-400" />
+          <span className="h-5 w-5 text-gray-400 font-semibold">₹</span>
         </div>
         <input
           type="number"
@@ -224,7 +250,7 @@ const CreateProduct = () => {
                       <AlignLeft className="h-5 w-5 text-gray-400" />
                     </div>
                     <textarea
-                      {...register('description', { required: 'Description is required' })}
+                      {...register('description')}
                       className="pl-10 block w-full rounded-xl border-gray-200 bg-gray-50 border focus:bg-white focus:border-red-500 focus:ring-red-500 transition-all py-2.5"
                       placeholder="Describe the product..."
                       rows={4}
@@ -366,7 +392,7 @@ const CreateProduct = () => {
                       {watchedValues.name || "Product Name"}
                     </h3>
                     <span className="text-red-600 font-bold bg-red-50 px-2 py-1 rounded-lg">
-                      ${Number(watchedValues.price || 0).toFixed(2)}
+                      ₹{Number(watchedValues.price || 0).toFixed(2)}
                     </span>
                   </div>
 

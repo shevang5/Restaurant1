@@ -9,6 +9,7 @@ const Products = () => {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedFoodType, setSelectedFoodType] = useState("All");
 
   const fetchProducts = async () => {
     try {
@@ -20,7 +21,7 @@ const Products = () => {
       console.error("Error fetching products:", err);
       setError(
         err.userMessage ||
-          "Unable to load products right now. The server may be waking up, please retry.",
+          "Unable to load products right now. The server may be waking up, please retry."
       );
     } finally {
       setLoading(false);
@@ -43,9 +44,11 @@ const Products = () => {
         .includes(searchTerm.toLowerCase());
       const matchesCategory =
         selectedCategory === "All" || product.category === selectedCategory;
-      return matchesSearch && matchesCategory;
+      const matchesFoodType =
+        selectedFoodType === "All" || product.foodType === selectedFoodType;
+      return matchesSearch && matchesCategory && matchesFoodType;
     });
-  }, [products, searchTerm, selectedCategory]);
+  }, [products, searchTerm, selectedCategory, selectedFoodType]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -76,6 +79,39 @@ const Products = () => {
                 {cat}
               </button>
             ))}
+          </div>
+
+          <div className="flex gap-2 w-full md:w-auto px-2">
+            <button
+              onClick={() => setSelectedFoodType("All")}
+              className={`px-4 py-1 rounded-full text-sm font-medium border transition-all ${
+                selectedFoodType === "All"
+                  ? "bg-gray-900 text-white border-gray-900"
+                  : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setSelectedFoodType("veg")}
+              className={`px-4 py-1 rounded-full text-sm font-medium border transition-all ${
+                selectedFoodType === "veg"
+                  ? "bg-green-600 text-white border-green-600 shadow-md"
+                  : "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
+              }`}
+            >
+              Veg
+            </button>
+            <button
+              onClick={() => setSelectedFoodType("nonveg")}
+              className={`px-4 py-1 rounded-full text-sm font-medium border transition-all ${
+                selectedFoodType === "nonveg"
+                  ? "bg-red-600 text-white border-red-600 shadow-md"
+                  : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+              }`}
+            >
+              Nonveg
+            </button>
           </div>
         </div>
       </div>
@@ -123,6 +159,7 @@ const Products = () => {
               onClick={() => {
                 setSearchTerm("");
                 setSelectedCategory("All");
+                setSelectedFoodType("All");
               }}
               className="mt-6 text-red-600 font-semibold hover:underline"
             >
@@ -134,5 +171,7 @@ const Products = () => {
     </div>
   );
 };
+
+
 
 export default Products;

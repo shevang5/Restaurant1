@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { loadCart } from "../../store/reducers/cartSlice";
@@ -33,7 +33,7 @@ const ProductDetail = () => {
         <Package className="w-16 h-16 text-gray-300 mb-4" />
         <p className="text-gray-500 text-lg font-medium">Product not found</p>
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/products")}
           className="mt-4 text-red-600 hover:text-red-700 font-semibold flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" /> Go Back
@@ -86,7 +86,7 @@ const ProductDetail = () => {
     <div className="min-h-screen bg-gray-50 py-5 md:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/products")}
           className="group mb-8 flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors"
         >
           <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -156,7 +156,7 @@ const ProductDetail = () => {
                         >
                           <div className="font-bold text-lg">Half Plate</div>
                           <div className="text-sm mt-1">
-                            ${product.halfPlatePrice}
+                            ₹{product.halfPlatePrice}
                           </div>
                         </button>
                         <button
@@ -169,23 +169,21 @@ const ProductDetail = () => {
                           }`}
                         >
                           <div className="font-bold text-lg">Full Plate</div>
-                          <div className="text-sm mt-1">${product.price}</div>
+                          <div className="text-sm mt-1">₹{product.price}</div>
                         </button>
                       </div>
                     </div>
                   )}
 
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold text-gray-900">
-                      $
-                      {product.hasPortionOptions
+                    <span className="text-4xl font-bold text-gray-900">₹{product.hasPortionOptions
                         ? selectedPortion === "half"
                           ? product.halfPlatePrice
                           : product.price
                         : product.price}
                     </span>
                     <span className="text-sm text-gray-400 font-medium">
-                      USD
+                      INR
                     </span>
                   </div>
 
@@ -218,7 +216,7 @@ const ProductDetail = () => {
                         Free Shipping
                       </p>
                       <p className="text-xs text-gray-500">
-                        On orders over $50
+                        On orders over ₹50
                       </p>
                     </div> */}
                   </div>
@@ -246,4 +244,5 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
+
 

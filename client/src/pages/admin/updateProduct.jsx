@@ -23,6 +23,7 @@ const UpdateProduct = () => {
       productCode: "",
       price: "",
       category: "",
+      foodType: "veg",
       description: "",
       hasPortionOptions: false,
       halfPlatePrice: "",
@@ -50,6 +51,7 @@ const UpdateProduct = () => {
       productCode: product.productCode || "",
       price: product.price || "",
       category: product.category || "",
+      foodType: product.foodType || "veg",
       description: product.description || "",
       hasPortionOptions: !!product.hasPortionOptions,
       halfPlatePrice: product.halfPlatePrice || "",
@@ -65,6 +67,7 @@ const UpdateProduct = () => {
     formData.append("productCode", data.productCode || "");
     formData.append("price", data.price);
     formData.append("category", data.category);
+    formData.append("foodType", data.foodType || "veg");
     formData.append("description", data.description);
     formData.append("hasPortionOptions", String(!!data.hasPortionOptions));
 
@@ -95,7 +98,7 @@ const UpdateProduct = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-3xl mx-auto">
-        <Link to={`/products/${id}`} className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-6">
+        <Link to={`/products`} className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to Product
         </Link>
 
@@ -133,12 +136,13 @@ const UpdateProduct = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+                  {/* <DollarSign className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" /> */}
+                  
                   <input
                     type="number"
                     step="0.01"
                     {...register("price", { required: "Price is required" })}
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                    className="w-full pl-5 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                   />
                 </div>
                 {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
@@ -164,6 +168,31 @@ const UpdateProduct = () => {
               </div>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Food Type</label>
+              <div className="flex gap-6">
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <input
+                    type="radio"
+                    value="veg"
+                    {...register("foodType", { required: "Food type is required" })}
+                    className="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+                  />
+                  Veg
+                </label>
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <input
+                    type="radio"
+                    value="nonveg"
+                    {...register("foodType", { required: "Food type is required" })}
+                    className="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-500"
+                  />
+                  Nonveg
+                </label>
+              </div>
+              {errors.foodType && <p className="text-red-500 text-xs mt-1">{errors.foodType.message}</p>}
+            </div>
+
             {watch("hasPortionOptions") && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Half Plate Price</label>
@@ -183,7 +212,7 @@ const UpdateProduct = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea
                 rows="4"
-                {...register("description", { required: "Description is required" })}
+                {...register("description")}
                 className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
               />
               {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}

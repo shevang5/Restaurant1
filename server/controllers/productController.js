@@ -24,7 +24,7 @@ export const getProduct = async (req, res) => {
 export const addProduct = async (req, res) => {
   try {
     const file = req.file;
-    const { name, description, price, category, imageUrl, hasPortionOptions, halfPlatePrice } = req.body;
+    const { name, description, price, category, imageUrl, hasPortionOptions, halfPlatePrice, foodType } = req.body;
 
     if (!file && !imageUrl) {
       return res.status(400).json({ message: "Either an image file or image URL is required" });
@@ -59,6 +59,7 @@ export const addProduct = async (req, res) => {
       description,
       price,
       category,
+      foodType: foodType === "nonveg" ? "nonveg" : "veg",
       image: imageFile,
       hasPortionOptions: hasPortionOptions === 'true' || hasPortionOptions === true,
     };
@@ -116,6 +117,9 @@ export const updateProduct = async (req, res) => {
     product.description = req.body.description || product.description;
     product.price = req.body.price || product.price;
     product.category = req.body.category || product.category;
+    if (req.body.foodType) {
+      product.foodType = req.body.foodType === "nonveg" ? "nonveg" : "veg";
+    }
     product.image = imageFile;
     
     // ADD THESE LINES FOR PORTION OPTIONS:

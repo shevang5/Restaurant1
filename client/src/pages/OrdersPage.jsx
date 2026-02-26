@@ -23,7 +23,7 @@ export default function MyOrders() {
   if (!orders || orders.length === 0)
     return (
       <p className="text-center py-16 text-gray-500">
-        🛒 You have no orders yet.
+        Cart is empty. You have no orders yet.
       </p>
     );
 
@@ -72,7 +72,7 @@ export default function MyOrders() {
                 {order.status.toUpperCase()}
               </span>
               <p>
-                <span className="font-semibold">Total:</span> ${order.total?.toFixed(2)}
+                <span className="font-semibold">Total:</span> ₹{order.total?.toFixed(2)}
               </p>
             </div>
 
@@ -105,7 +105,7 @@ export default function MyOrders() {
                               {item.portion ? ` (${item.portion === "half" ? "Half" : "Full"})` : ""}
                             </p>
                             <p className="text-gray-600">Quantity: {item.quantity}</p>
-                            <p className="text-gray-600">Price: ${Number(itemPrice || 0).toFixed(2)}</p>
+                            <p className="text-gray-600">Price: ₹{Number(itemPrice || 0).toFixed(2)}</p>
                           </>
                         );
                       })()}
@@ -166,5 +166,6 @@ export default function MyOrders() {
     </div>
   );
 }
+
 
 

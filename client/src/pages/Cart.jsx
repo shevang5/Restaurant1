@@ -149,7 +149,7 @@ const Cart = () => {
 if (!cart.items || cart.items.length === 0) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
-      <div className="bg-gray-100 p-8 rounded-full mb-4 text-5xl">🛒</div>
+      <div className="bg-gray-100 p-8 rounded-full mb-4 text-5xl">Cart</div>
       <h2 className="text-2xl font-bold text-gray-800">Your cart is empty</h2>
       <p className="text-gray-500 mb-6">Looks like you haven't added anything yet.</p>
       <Link 
@@ -203,9 +203,9 @@ const total = safeCart.reduce((sum, item) => {
                     <h3 className="font-bold text-gray-800">
                       {item.product?.name}
                     </h3>
-                    {/* ✅ CORRECT - Show SELECTED portion price */}
+                    {/* Show selected portion price */}
                     <p className="text-indigo-600 font-medium flex items-center gap-2">
-                      ${Number(item.price || item.product?.price || 0).toFixed(2)}
+                      ₹{Number(item.price || item.product?.price || 0).toFixed(2)}
                       {item.portion && (
                         <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">
                           {item.portion === "half" ? "Half Plate" : "Full Plate"}
@@ -227,7 +227,7 @@ const total = safeCart.reduce((sum, item) => {
                       disabled={updatingIds[item._id]}
                       className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-md transition disabled:opacity-50"
                     >
-                      –
+                      -
                     </button>
                     <span className="w-8 text-center font-bold">
                       {item.quantity}
@@ -256,13 +256,13 @@ const total = safeCart.reduce((sum, item) => {
                   onClick={() => setDeliveryType("pickup")}
                   className={`flex-1 py-2 rounded-lg font-bold transition-all ${deliveryType === "pickup" ? "bg-white shadow-sm text-indigo-600" : "text-gray-500"}`}
                 >
-                  🚶 Pickup
+                  Pickup
                 </button>
                 <button
                   onClick={() => setDeliveryType("home")}
                   className={`flex-1 py-2 rounded-lg font-bold transition-all ${deliveryType === "home" ? "bg-white shadow-sm text-indigo-600" : "text-gray-500"}`}
                 >
-                  🏠 Delivery
+                  Delivery
                 </button>
               </div>
 
@@ -351,15 +351,15 @@ const total = safeCart.reduce((sum, item) => {
                 <div className="bg-gray-50 p-4 rounded-xl space-y-2 mb-6">
                   <div className="flex justify-between text-gray-500">
                     <span>Subtotal</span>
-                    <span>${total}</span>
+                    <span>₹{total}</span>
                   </div>
                   <div className="flex justify-between text-gray-500">
                     <span>Service Fee</span>
-                    <span>$0.00</span>
+                    <span>₹0.00</span>
                   </div>
                   <div className="flex justify-between text-xl font-black text-gray-900 pt-2 border-t">
                     <span>Total</span>
-                    <span>${total}</span>
+                    <span>₹{total}</span>
                   </div>
                 </div>
 
@@ -379,4 +379,5 @@ const total = safeCart.reduce((sum, item) => {
 };
 
 export default Cart;
+
 

@@ -14,6 +14,8 @@ import googleAuthRoutes from "./routes/googleAuthRoutes.js";
 dotenv.config();
 const app = express();
 
+
+
 // Configure CORS with proper origin and credentials
 // 'http://localhost:5173',
 // 'http://127.0.0.1:5173',

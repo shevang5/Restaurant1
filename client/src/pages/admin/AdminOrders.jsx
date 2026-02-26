@@ -100,7 +100,7 @@ export default function AdminOrders() {
       const { data } = await axios.put(`/orders/${orderId}/status`, { status });
       setOrders((prev) => prev.map((o) => (o._id === orderId ? data : o)));
     } catch (err) {
-      alert("❌ Failed to update status");
+      alert("Failed to update status");
     }
   };
 
@@ -216,7 +216,7 @@ export default function AdminOrders() {
                           </span>
                           {order.isPaid && (
                             <span className="px-1.5 py-0 rounded-md text-[9px] font-bold uppercase tracking-wider bg-green-100 text-green-700 border border-green-200 shadow-sm">
-                              ✅ Paid Online
+                              Paid Online
                             </span>
                           )}
                         </div>
@@ -229,7 +229,7 @@ export default function AdminOrders() {
 
                     <div className="text-right">
                       <p className="text-xs text-gray-500 mb-0">Total</p> {/* Removed margin-bottom */}
-                      <p className="text-base font-bold text-gray-900">${order.total?.toFixed(2)}</p> {/* Reduced text size */}
+                      <p className="text-base font-bold text-gray-900">₹{order.total?.toFixed(2)}</p> {/* Reduced text size */}
                     </div>
                   </div>
 
@@ -253,7 +253,7 @@ export default function AdminOrders() {
                           ? "bg-amber-100 border-amber-200 text-amber-800"
                           : "bg-green-100 border-green-200 text-green-800"
                           }`}>
-                          {order.deliveryType === "home" ? "🏠 Delivery" : "🏪 Pickup"}
+                          {order.deliveryType === "home" ? "Home Delivery" : "Pickup"}
                         </div>
                       </div>
                     </div>
@@ -314,14 +314,14 @@ export default function AdminOrders() {
                                       ? "bg-orange-100 text-orange-700 border border-orange-200" 
                                       : "bg-blue-100 text-blue-700 border border-blue-200"
                                   }`}>
-                                    {item.portion === "half" ? "🍽️ Half" : "🍽️ Full"}
+                                    {item.portion === "half" ? "Half" : "Full"}
                                   </span>
                                 )}
                               </div>
                               <p className="text-[12px] text-gray-500">Qty: {item.quantity}</p> {/* Reduced text size */}
                             </div>
                             <p className="text-xs font-semibold text-gray-900">
-                              ${(item.quantity * (item.price || item.product?.price)).toFixed(2)}
+                              ₹{(item.quantity * (item.price || item.product?.price)).toFixed(2)}
                             </p>
                           </div>
                         ))}

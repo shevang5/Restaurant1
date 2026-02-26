@@ -209,7 +209,7 @@ export default function CreateManualOrder() {
                                         <div className="flex justify-between items-start mb-2">
                                             <h3 className="font-bold text-gray-900 line-clamp-1" title={product.name}>{product.name}</h3>
                                             <span className="text-red-600 font-bold text-sm bg-red-50 px-2 py-1 rounded-lg">
-                                                ${product.price.toFixed(2)}
+                                                ₹{product.price.toFixed(2)}
                                             </span>
                                         </div>
                                         <button
@@ -352,7 +352,7 @@ export default function CreateManualOrder() {
                                                     <img src={item.product.image} className="w-10 h-10 rounded object-cover bg-gray-50" />
                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-sm font-medium text-gray-900 truncate">{item.product.name}</p>
-                                                        <p className="text-xs text-gray-500">${item.product.price} x {item.quantity}</p>
+                                                        <p className="text-xs text-gray-500">₹{item.product.price} x {item.quantity}</p>
                                                     </div>
                                                     <div className="flex items-center gap-1">
                                                         <button
@@ -386,7 +386,7 @@ export default function CreateManualOrder() {
                             <div className="p-6 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
                                 <div className="flex justify-between items-center mb-4">
                                     <span className="text-gray-600 font-medium">Total Amount</span>
-                                    <span className="text-2xl font-bold text-gray-900">${cartTotal.toFixed(2)}</span>
+                                    <span className="text-2xl font-bold text-gray-900">₹{cartTotal.toFixed(2)}</span>
                                 </div>
                                 <button
                                     onClick={handleSubmit}
@@ -421,3 +421,4 @@ export default function CreateManualOrder() {
         </div>
     );
 }
+
