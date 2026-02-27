@@ -2,14 +2,21 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+const normalizePhone = (value = "") => value.replace(/[^\d+]/g, "").trim();
+
 export const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, phone, password } = req.body;
+    const normalizedPhone = normalizePhone(phone);
+    if (!normalizedPhone) return res.status(400).json({ message: "Phone number is required" });
+
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: "Email already registered" });
+    const phoneExists = await User.findOne({ phone: normalizedPhone });
+    if (phoneExists) return res.status(400).json({ message: "Phone number already registered" });
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashed });
+    const user = await User.create({ name, email, phone: normalizedPhone, password: hashed });
 
     res.status(201).json({ message: "User registered successfully", user });
   } catch (err) {
@@ -19,8 +26,14 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const { email, phone, loginId, password } = req.body;
+    const credential = (loginId || email || phone || "").trim();
+    if (!credential) return res.status(400).json({ message: "Email or phone is required" });
+
+    const loginQuery = credential.includes("@")
+      ? { email: credential }
+      : { phone: normalizePhone(credential) };
+    const user = await User.findOne(loginQuery);
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -30,7 +43,7 @@ export const login = async (req, res) => {
 
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+      user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role }
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

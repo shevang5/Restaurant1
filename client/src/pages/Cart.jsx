@@ -6,6 +6,15 @@ import { loadCart } from "../store/reducers/cartSlice";
 import EmptyCart from "../components/EmptyCart";
 
 const INR = "\u20B9";
+const getRegisteredPhone = () => {
+  try {
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    return (storedUser?.user?.phone || storedUser?.phone || "").trim();
+  } catch (e) {
+    console.error("Failed to parse stored user", e);
+    return "";
+  }
+};
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -20,21 +29,74 @@ const Cart = () => {
     postalCode: "",
     phone: "",
   });
-  const [pickupInfo, setPickupInfo] = useState({ phone: "", pickTime: "" });
+
+  // persist delivery address (including phone) whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem("deliveryAddress", JSON.stringify(address));
+    } catch (e) {
+      console.error("Failed to save delivery address", e);
+    }
+  }, [address]);
+
+  // helper: format Date -> datetime-local value (YYYY-MM-DDTHH:MM)
+  const formatDateTimeLocal = (d = new Date()) => {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  const [pickupInfo, setPickupInfo] = useState(() => ({ phone: "", pickTime: formatDateTimeLocal() }));
+
+  // store pickup info for reuse
+  useEffect(() => {
+    try {
+      localStorage.setItem("pickupInfo", JSON.stringify(pickupInfo));
+    } catch (e) {
+      console.error("Failed to save pickup info", e);
+    }
+  }, [pickupInfo]);
   const [paymentMethod, setPaymentMethod] = useState("offline");
   const [showCheckoutPopup, setShowCheckoutPopup] = useState(false);
 
   useEffect(() => {
     fetchCart();
-    const savedPhone = localStorage.getItem("pickupPhone");
-    if (savedPhone) setPickupInfo((prev) => ({ ...prev, phone: savedPhone }));
+    const registeredPhone = getRegisteredPhone();
+
+    const savedPickup = localStorage.getItem("pickupInfo");
+    if (savedPickup) {
+      try {
+        const parsed = JSON.parse(savedPickup);
+        setPickupInfo((prev) => ({
+          ...prev,
+          ...parsed,
+          phone: parsed.phone || registeredPhone || prev.phone,
+        }));
+      } catch (e) {
+        console.error("Failed to parse saved pickup info", e);
+      }
+    } else {
+      const savedPhone = localStorage.getItem("pickupPhone");
+      if (savedPhone) {
+        setPickupInfo((prev) => ({ ...prev, phone: savedPhone }));
+      } else if (registeredPhone) {
+        setPickupInfo((prev) => ({ ...prev, phone: registeredPhone }));
+      }
+    }
+
     const savedAddress = localStorage.getItem("deliveryAddress");
     if (savedAddress) {
       try {
-        setAddress(JSON.parse(savedAddress));
+        const parsedAddress = JSON.parse(savedAddress);
+        setAddress((prev) => ({
+          ...prev,
+          ...parsedAddress,
+          phone: parsedAddress.phone || registeredPhone || prev.phone,
+        }));
       } catch (e) {
         console.error(e);
       }
+    } else if (registeredPhone) {
+      setAddress((prev) => ({ ...prev, phone: registeredPhone }));
     }
   }, []);
 
@@ -75,8 +137,11 @@ const Cart = () => {
     const selectedInfo = deliveryType === "home" ? address : pickupInfo;
 
     try {
-      if (deliveryType === "home" && (!selectedInfo.line1 || !selectedInfo.city)) {
-        alert("Please provide a valid address.");
+      if (
+        deliveryType === "home" &&
+        (!selectedInfo.line1 || !selectedInfo.city || !selectedInfo.phone)
+      ) {
+        alert("Please provide a valid address and phone number.");
         return;
       }
 
@@ -310,6 +375,14 @@ const Cart = () => {
                       onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
                     />
                   </div>
+                  {/* phone number for delivery; stored and re-used */}
+                  <input
+                    required
+                    className="w-full border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none border"
+                    placeholder="Phone Number"
+                    value={address.phone}
+                    onChange={(e) => setAddress({ ...address, phone: e.target.value })}
+                  />
                 </div>
               ) : (
                 <div className="space-y-3 animate-in fade-in duration-300">

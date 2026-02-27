@@ -115,6 +115,18 @@ export const createOrder = async (req, res) => {
     // Populate product details
     await order.populate("products.product");
 
+    // emit update to user room
+    const io = req.app.get("io");
+    if (io && order.user) {
+      io.to(order.user.toString()).emit("order:update", order);
+      // also broadcast a refresh for admin dashboards
+      try {
+        io.emit("order:refresh", order);
+      } catch (err) {
+        console.error("Socket emit error:", err);
+      }
+    }
+
     // Clear user's cart after successful order creation (only if user exists)
     if (req.user) {
       try {
@@ -157,6 +169,16 @@ export const updateOrderStatus = async (req, res) => {
     { status: req.body.status },
     { new: true }
   );
+  // emit to user room (maybe admin or other watches)
+  const io = req.app.get("io");
+  if (io && order && order.user) {
+    io.to(order.user.toString()).emit("order:update", order);
+    try {
+      io.emit("order:refresh", order);
+    } catch (err) {
+      console.error("Socket emit error:", err);
+    }
+  }
   res.json(order);
 };
 
@@ -177,6 +199,17 @@ export const cancelOrder = async (req, res) => {
 
     order.status = "cancelled";
     await order.save();
+
+    // emit update
+    const io = req.app.get("io");
+    if (io && order.user) {
+      io.to(order.user.toString()).emit("order:update", order);
+      try {
+        io.emit("order:refresh", order);
+      } catch (err) {
+        console.error("Socket emit error:", err);
+      }
+    }
 
     res.json(order);
   } catch (error) {

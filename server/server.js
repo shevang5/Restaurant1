@@ -96,7 +96,35 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+    // create HTTP server and attach Socket.IO
+    const httpServer = http.createServer(app);
+    const io = new IOServer(httpServer, {
+      cors: {
+        origin: allowedOrigins,
+        credentials: true,
+      },
+    });
+
+    // store io instance on app so it can be accessed in controllers
+    app.set("io", io);
+
+    io.on("connection", (socket) => {
+      console.log("Socket connected:", socket.id);
+
+      socket.on("joinUser", (userId) => {
+        if (userId) {
+          socket.join(userId);
+          console.log(`Socket ${socket.id} joined room ${userId}`);
+        }
+      });
+
+      socket.on("disconnect", () => {
+        console.log("Socket disconnected:", socket.id);
+      });
+    });
+
+    httpServer.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (error) {
     console.error("Failed to start server:", error.message);
     process.exit(1);

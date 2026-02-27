@@ -24,7 +24,7 @@ const Register = () => {
     <div className="flex min-h-screen w-full bg-orange-50/30">
 
       {/* Left Text/Image Side (Bakery Vibe) - Same as Login for consistency */}
-      <div className="hidden lg:flex w-1/2 relative bg-[var(--color-primary)] items-center justify-center p-12">
+      <div className="hidden lg:flex w-1/2 relative bg-[var(--color-primary)] items-center justify-center p-5">
         <div className="absolute inset-0">
           {/* Use the same image or a different relevant one if available. Using the same for now for consistency */}
           <img
@@ -48,7 +48,7 @@ const Register = () => {
 
         <div className="relative z-10 px-12 text-center text-white">
           <h1 className="text-6xl font-extrabold mb-6 tracking-wide font-serif drop-shadow-md">
-            Join LA Bakery 🥐
+            Restaurant
           </h1>
           <p className="text-2xl font-light italic text-orange-50">
             "Freshness you can taste, quality you can trust."
@@ -60,7 +60,7 @@ const Register = () => {
       </div>
 
       {/* Right Form Side */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-16">
+      <div className="w-full lg:w-1/2 flex items-start justify-center p-2 lg:p-16">
         <div className="w-full max-w-md space-y-8 bg-white p-10 rounded-3xl shadow-xl border border-orange-100">
           <div className="text-center">
             <h2 className="text-4xl font-bold text-gray-900">
@@ -103,6 +103,23 @@ const Register = () => {
                   {...register('email')}
                   className="w-full px-5 py-4 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200 bg-gray-50 text-base"
                   placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            {/* Phone Field */}
+            <div>
+              <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 ml-1">
+                Phone Number
+              </label>
+              <div className="mt-1">
+                <input
+                  id="phone"
+                  type="tel"
+                  required
+                  {...register('phone')}
+                  className="w-full px-5 py-4 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200 bg-gray-50 text-base"
+                  placeholder="00000 00000"
                 />
               </div>
             </div>

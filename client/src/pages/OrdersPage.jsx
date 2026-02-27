@@ -7,14 +7,8 @@ export default function MyOrders() {
   const { orders, loading } = useSelector((state) => state.orders);
 
   useEffect(() => {
+    // initial load; further updates come via socket
     dispatch(asyncGetUserOrders());
-
-    // Poll for updates every 5 seconds
-    const interval = setInterval(() => {
-      dispatch(asyncGetUserOrders());
-    }, 5000);
-
-    return () => clearInterval(interval);
   }, [dispatch]);
 
   if (loading)

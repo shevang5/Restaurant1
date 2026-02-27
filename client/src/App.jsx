@@ -6,6 +6,7 @@ import Loader from './components/Loader'
 import { asyncCurrentUsers, asyncLogoutUsers } from './store/action/userActions';
 import { asyncLoadProducts } from './store/action/productActions';
 import { asyncCreateOrder } from './store/action/orderActions';
+import useSocket from './hooks/useSocket';
 
 // Lazy load layout and routes
 const Navbar = lazy(() => import('./components/Navbar'))
@@ -17,6 +18,9 @@ const App = () => {
   const { user } = useSelector((state) => state.usersReducer)
   const { products } = useSelector((state) => state.productsReducers)
   const { orders } = useSelector((state) => state.orders)
+
+  // establish socket connection for real-time updates
+  useSocket();
 
   useEffect(() => {
     dispatch(asyncLoadProducts())

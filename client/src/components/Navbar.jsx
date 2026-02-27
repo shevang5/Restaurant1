@@ -24,16 +24,36 @@ const Navbar = () => {
   const { orders } = useSelector((state) => state.orders);
   const pendingOrderCount = orders ? orders.filter(o => o.status === "pending").length : 0;
 
-  // Poll orders for admin
+  // Admin: fetch orders on load and then listen for socket refresh events
   useEffect(() => {
-    let interval;
-    if (user?.role === "admin") {
-      dispatch(asyncGetAllOrders()); // Initial fetch
-      interval = setInterval(() => {
-        dispatch(asyncGetAllOrders());
-      }, 5000);
-    }
-    return () => clearInterval(interval);
+    if (user?.role !== "admin") return;
+
+    dispatch(asyncGetAllOrders()); // initial fetch
+
+    let socket;
+    const setup = async () => {
+      try {
+        const { io } = await import(
+          "https://cdn.socket.io/4.6.1/socket.io.esm.min.js"
+        );
+        socket = io(process.env.VITE_API_URL || "http://localhost:5000", {
+          withCredentials: true,
+        });
+        socket.on("order:refresh", () => {
+          dispatch(asyncGetAllOrders());
+        });
+      } catch (err) {
+        console.error("Failed to load socket for admin orders:", err);
+      }
+    };
+    setup();
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+        socket = null;
+      }
+    };
   }, [user, dispatch]);
 
   // Outside click for profile
