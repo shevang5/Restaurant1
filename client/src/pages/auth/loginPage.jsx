@@ -12,6 +12,7 @@ const LoginPage = () => {
   const [forgotMsg, setForgotMsg] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(true);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -57,14 +58,14 @@ const LoginPage = () => {
 
         <div className="relative z-10 px-12 text-center text-white">
           <h1 className="text-6xl font-extrabold mb-6 tracking-wide font-serif drop-shadow-md">
-            LA Bakery 🥐
+            restaurant
           </h1>
           <p className="text-xl text-orange-50 italic">
             "The smell of fresh baking is the smell of home."
           </p>
-          <p className="mt-8 text-lg text-orange-100 max-w-lg mx-auto">
+          {/* <p className="mt-8 text-lg text-orange-100 max-w-lg mx-auto">
             Welcome back! Please login to your account to continue ordering our delightful pastries, artisan breads, and coffee.
-          </p>
+          </p> */}
         </div>
       </div>
 
@@ -111,16 +112,23 @@ const LoginPage = () => {
                     Forgot Password?
                   </button>
                 </div>
-                <div className="mt-1">
+                <div className="mt-1 relative">
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     id="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-5 py-4 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200 bg-gray-50 text-base"
+                    className="w-full px-5 py-4 pr-20 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200 bg-gray-50 text-base"
                     placeholder="********"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-600 hover:text-gray-800"
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
                 </div>
               </div>
             </div>

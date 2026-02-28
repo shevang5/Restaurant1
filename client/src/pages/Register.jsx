@@ -1,6 +1,6 @@
 
 import { nanoid } from 'nanoid';
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom';
 import { asyncRegisterUser } from '../store/action/userActions';
@@ -8,15 +8,21 @@ import { useDispatch } from 'react-redux';
 import bakeryHero from '/images/bgImg.jpg'
 
 const Register = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm()
+  const { register, handleSubmit, watch, formState: { errors } } = useForm()
   const dispatch = useDispatch()
   const Navigate = useNavigate()
-  const onSubmit = (user) => {
+  const [showPassword, setShowPassword] = useState(true)
+  const onSubmit = async (user) => {
     user.id = nanoid()
     user.isAdmin = false
+    delete user.confirmPassword
     console.log(user);
-    dispatch(asyncRegisterUser(user))
-    Navigate('/login')
+    try {
+      await dispatch(asyncRegisterUser(user))
+      Navigate('/login')
+    } catch (error) {
+      // keep user on register page when registration fails
+    }
 
   }
 
@@ -129,16 +135,45 @@ const Register = () => {
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 ml-1">
                 Password
               </label>
-              <div className="mt-1">
+              <div className="mt-1 relative">
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   {...register('password')}
+                  className="w-full px-5 py-4 pr-20 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200 bg-gray-50 text-base"
+                  placeholder="********"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(prev => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-600 hover:text-gray-800"
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+            </div>
+
+            {/* Confirm Password Field */}
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 ml-1">
+                Confirm Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="confirmPassword"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  {...register('confirmPassword', {
+                    validate: (value) => value === watch('password') || 'Passwords do not match'
+                  })}
                   className="w-full px-5 py-4 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200 bg-gray-50 text-base"
                   placeholder="********"
                 />
               </div>
+              {errors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+              )}
             </div>
 
             {/* Submit Button */}
