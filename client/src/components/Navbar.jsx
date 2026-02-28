@@ -74,15 +74,15 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="md:px-12 px-2 py-4 bg-[var(--color-primary)] shadow-sm font-sans relative z-50">
+      <nav className="md:px-12  shadow-sm font-sans relative z-50">
         <div className="bg-white py-3 md:px-10 px-2 rounded-lg w-full flex items-center justify-between">
           {/* Logo Section */}
           <div className="flex items-center gap-4">
             <NavLink to="/" className="flex items-center gap-2">
-              <div className="p-1 rounded-full border-2 border-orange-500">
+              {/* <div className="p-1 rounded-full border-2 border-orange-500">
                 <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm">R</div>
-              </div>
-              <div className="flex flex-col leading-tight">
+              </div> */}
+              <div className="flex pl-2 flex-col leading-tight">
                 <span className="text-red-600 font-bold text-lg tracking-wide">RESTAURANT</span>
               </div>
             </NavLink>

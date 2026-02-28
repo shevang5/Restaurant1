@@ -11,6 +11,10 @@ import orderRoutes from "./routes/orderRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import googleAuthRoutes from "./routes/googleAuthRoutes.js";
 
+// missing imports for HTTP server and sockets
+import http from "http";
+import { Server as IOServer } from "socket.io";
+
 dotenv.config();
 const app = express();
 
