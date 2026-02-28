@@ -5,7 +5,7 @@ import { asyncLoginUsers } from '../../store/action/userActions';
 import axios from '../../api/config';
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
+  const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
@@ -16,7 +16,7 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(asyncLoginUsers({ email, password }))
+    dispatch(asyncLoginUsers({ loginId, password }))
       .then(() => navigate('/'))
       .catch((error) => console.log(error));
   };
@@ -76,18 +76,18 @@ const LoginPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 ml-1" htmlFor="email">
-                  Email Address
+                <label className="block text-sm font-semibold text-gray-700 ml-1" htmlFor="loginId">
+                  Email or Phone Number
                 </label>
                 <div className="mt-1">
                   <input
-                    type="email"
-                    id="email"
+                    type="text"
+                    id="loginId"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={loginId}
+                    onChange={(e) => setLoginId(e.target.value)}
                     className="w-full px-5 py-4 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200 bg-gray-50 text-base"
-                    placeholder="you@example.com"
+                    placeholder="you@example.com or +1 555 123 4567"
                   />
                 </div>
               </div>
