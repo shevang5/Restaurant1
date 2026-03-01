@@ -106,7 +106,7 @@ const LoginPage = () => {
                 </div>
                 <div className="mt-1">
                   <input
-                    type="password"
+                    type="text"
                     id="password"
                     required
                     value={password}
