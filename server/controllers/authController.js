@@ -32,36 +32,18 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, phone, loginId, password } = req.body;
-    const credential = (loginId || email || phone || "").trim();
-    if (!credential) return res.status(400).json({ message: "Email or phone is required" });
-    if (!password) return res.status(400).json({ message: "Password is required" });
-
-    const loginQuery = credential.includes("@")
-      ? { email: { $regex: `^${escapeRegex(normalizeEmail(credential))}$`, $options: "i" } }
-      : { phone: normalizePhone(credential) };
-    const user = await User.findOne(loginQuery);
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
-    // Support legacy plain-text passwords and migrate them to bcrypt on successful login.
-    const isBcryptHash = typeof user.password === "string" && user.password.startsWith("$2");
-    let isMatch = false;
-    if (isBcryptHash) {
-      isMatch = await bcrypt.compare(password, user.password);
-    } else {
-      isMatch = password === user.password;
-      if (isMatch) {
-        user.password = await bcrypt.hash(password, 10);
-        await user.save();
-      }
-    }
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role }
+      user: { id: user._id, name: user.name, email: user.email, role: user.role }
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

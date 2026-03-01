@@ -5,7 +5,7 @@ import { asyncLoginUsers } from '../../store/action/userActions';
 import axios from '../../api/config';
 
 const LoginPage = () => {
-  const [loginId, setLoginId] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
@@ -16,7 +16,7 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(asyncLoginUsers({ loginId: loginId.trim(), password }))
+    dispatch(asyncLoginUsers({ email, password }))
       .then(() => navigate('/'))
       .catch((error) => console.log(error));
   };
@@ -50,14 +50,14 @@ const LoginPage = () => {
 
         <div className="relative z-10 px-12 text-center text-white">
           <h1 className="text-6xl font-extrabold mb-6 tracking-wide font-serif drop-shadow-md">
-            Restaurant
+            LA Bakery 🥐
           </h1>
           <p className="text-xl text-orange-50 italic">
-            "The smell of fresh food is the smell of home."
+            "The smell of fresh baking is the smell of home."
           </p>
-          {/* <p className="mt-8 text-lg text-orange-100 max-w-lg mx-auto">
+          <p className="mt-8 text-lg text-orange-100 max-w-lg mx-auto">
             Welcome back! Please login to your account to continue ordering our delightful pastries, artisan breads, and coffee.
-          </p> */}
+          </p>
         </div>
       </div>
 
@@ -76,18 +76,18 @@ const LoginPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 ml-1" htmlFor="loginId">
-                  Email or Phone Number
+                <label className="block text-sm font-semibold text-gray-700 ml-1" htmlFor="email">
+                  Email Address
                 </label>
                 <div className="mt-1">
                   <input
-                    type="text"
-                    id="loginId"
+                    type="email"
+                    id="email"
                     required
-                    value={loginId}
-                    onChange={(e) => setLoginId(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full px-5 py-4 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200 bg-gray-50 text-base"
-                    placeholder="you@example.com or +1 555 123 4567"
+                    placeholder="you@example.com"
                   />
                 </div>
               </div>
@@ -110,10 +110,9 @@ const LoginPage = () => {
                     id="password"
                     required
                     value={password}
-                    autoComplete="current-password"
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full px-5 py-4 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200 bg-gray-50 text-base"
-                    placeholder="Enter your password"
+                    placeholder="********"
                   />
                 </div>
               </div>
