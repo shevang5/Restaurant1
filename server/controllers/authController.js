@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 
 const normalizePhone = (value = "") => value.replace(/[^\d+]/g, "").trim();
 const normalizeEmail = (value = "") => value.trim().toLowerCase();
+const escapeRegex = (value = "") => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const register = async (req, res) => {
   try {
@@ -13,7 +14,9 @@ export const register = async (req, res) => {
     if (!normalizedEmail) return res.status(400).json({ message: "Email is required" });
     if (!normalizedPhone) return res.status(400).json({ message: "Phone number is required" });
 
-    const userExists = await User.findOne({ email: normalizedEmail });
+    const userExists = await User.findOne({
+      email: { $regex: `^${escapeRegex(normalizedEmail)}$`, $options: "i" }
+    });
     if (userExists) return res.status(400).json({ message: "Email already registered" });
     const phoneExists = await User.findOne({ phone: normalizedPhone });
     if (phoneExists) return res.status(400).json({ message: "Phone number already registered" });
@@ -35,7 +38,7 @@ export const login = async (req, res) => {
     if (!password) return res.status(400).json({ message: "Password is required" });
 
     const loginQuery = credential.includes("@")
-      ? { email: normalizeEmail(credential) }
+      ? { email: { $regex: `^${escapeRegex(normalizeEmail(credential))}$`, $options: "i" } }
       : { phone: normalizePhone(credential) };
     const user = await User.findOne(loginQuery);
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
@@ -71,7 +74,10 @@ import nodemailer from "nodemailer";
 // POST /auth/forgot-password
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
-  const user = await User.findOne({ email });
+  const normalizedEmail = normalizeEmail(email);
+  const user = await User.findOne({
+    email: { $regex: `^${escapeRegex(normalizedEmail)}$`, $options: "i" }
+  });
   if (!user) return res.status(404).json({ message: "No user found with that email" });
 
   // Generate secure token
