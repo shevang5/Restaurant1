@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import User from "./models/User.js";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 
 dotenv.config();
 
@@ -14,14 +15,19 @@ const makeAdmin = async () => {
 
         if (!user) {
             console.log("User not found, creating...");
+            const hashedPassword = await bcrypt.hash("password123", 10);
             user = await User.create({
                 name: "Admin Test",
                 email,
-                password: "password123",
+                password: hashedPassword,
                 role: "admin"
             });
             console.log(`User ${email} created as admin`);
         } else {
+            // Ensure admin password is bcrypt-hashed in case a legacy plain text value exists.
+            if (typeof user.password === "string" && !user.password.startsWith("$2")) {
+                user.password = await bcrypt.hash(user.password, 10);
+            }
             user.role = "admin";
             await user.save();
             console.log(`User ${email} promoted to admin`);

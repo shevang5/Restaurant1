@@ -16,7 +16,7 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(asyncLoginUsers({ loginId, password }))
+    dispatch(asyncLoginUsers({ loginId: loginId.trim(), password }))
       .then(() => navigate('/'))
       .catch((error) => console.log(error));
   };
@@ -106,10 +106,11 @@ const LoginPage = () => {
                 </div>
                 <div className="mt-1">
                   <input
-                    // type="password"
+                    type="password"
                     id="password"
                     required
-                    
+                    value={password}
+                    autoComplete="current-password"
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full px-5 py-4 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200 bg-gray-50 text-base"
                     placeholder="Enter your password"

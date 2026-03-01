@@ -3,20 +3,23 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const normalizePhone = (value = "") => value.replace(/[^\d+]/g, "").trim();
+const normalizeEmail = (value = "") => value.trim().toLowerCase();
 
 export const register = async (req, res) => {
   try {
     const { name, email, phone, password } = req.body;
+    const normalizedEmail = normalizeEmail(email);
     const normalizedPhone = normalizePhone(phone);
+    if (!normalizedEmail) return res.status(400).json({ message: "Email is required" });
     if (!normalizedPhone) return res.status(400).json({ message: "Phone number is required" });
 
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email: normalizedEmail });
     if (userExists) return res.status(400).json({ message: "Email already registered" });
     const phoneExists = await User.findOne({ phone: normalizedPhone });
     if (phoneExists) return res.status(400).json({ message: "Phone number already registered" });
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, phone: normalizedPhone, password: hashed });
+    const user = await User.create({ name, email: normalizedEmail, phone: normalizedPhone, password: hashed });
 
     res.status(201).json({ message: "User registered successfully", user });
   } catch (err) {
@@ -29,14 +32,26 @@ export const login = async (req, res) => {
     const { email, phone, loginId, password } = req.body;
     const credential = (loginId || email || phone || "").trim();
     if (!credential) return res.status(400).json({ message: "Email or phone is required" });
+    if (!password) return res.status(400).json({ message: "Password is required" });
 
     const loginQuery = credential.includes("@")
-      ? { email: credential }
+      ? { email: normalizeEmail(credential) }
       : { phone: normalizePhone(credential) };
     const user = await User.findOne(loginQuery);
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Support legacy plain-text passwords and migrate them to bcrypt on successful login.
+    const isBcryptHash = typeof user.password === "string" && user.password.startsWith("$2");
+    let isMatch = false;
+    if (isBcryptHash) {
+      isMatch = await bcrypt.compare(password, user.password);
+    } else {
+      isMatch = password === user.password;
+      if (isMatch) {
+        user.password = await bcrypt.hash(password, 10);
+        await user.save();
+      }
+    }
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
