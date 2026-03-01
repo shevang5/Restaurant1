@@ -23,6 +23,7 @@ const AuthSuccess = () => {
             id: payload.userId,
             name: payload.name,
             email: payload.email,
+            phone: payload.phone || "",
             role: payload.role
           }
         };

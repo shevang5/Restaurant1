@@ -9,7 +9,15 @@ const INR = "\u20B9";
 const getRegisteredPhone = () => {
   try {
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    return (storedUser?.user?.phone || storedUser?.phone || "").trim();
+    const phoneCandidate =
+      storedUser?.user?.phone ||
+      storedUser?.phone ||
+      storedUser?.user?.mobile ||
+      storedUser?.mobile ||
+      storedUser?.user?.contact ||
+      storedUser?.contact ||
+      "";
+    return String(phoneCandidate).trim();
   } catch (e) {
     console.error("Failed to parse stored user", e);
     return "";
