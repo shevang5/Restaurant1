@@ -50,14 +50,14 @@ const LoginPage = () => {
 
         <div className="relative z-10 px-12 text-center text-white">
           <h1 className="text-6xl font-extrabold mb-6 tracking-wide font-serif drop-shadow-md">
-            LA Bakery 🥐
+            RESTAURANT
           </h1>
           <p className="text-xl text-orange-50 italic">
             "The smell of fresh baking is the smell of home."
           </p>
-          <p className="mt-8 text-lg text-orange-100 max-w-lg mx-auto">
+          {/* <p className="mt-8 text-lg text-orange-100 max-w-lg mx-auto">
             Welcome back! Please login to your account to continue ordering our delightful pastries, artisan breads, and coffee.
-          </p>
+          </p> */}
         </div>
       </div>
 
