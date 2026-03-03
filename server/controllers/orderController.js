@@ -4,6 +4,15 @@ import Product from "../models/Product.js";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 
+const emitOrderRefresh = (io, order) => {
+  if (!io) return;
+  try {
+    io.emit("order:refresh", order);
+  } catch (err) {
+    console.error("Socket emit error:", err);
+  }
+};
+
 const buildOrderProducts = async (user, incomingProducts = []) => {
   if (user?._id) {
     const cart = await Cart.findOne({ user: user._id }).populate("items.product");
@@ -119,13 +128,9 @@ export const createOrder = async (req, res) => {
     const io = req.app.get("io");
     if (io && order.user) {
       io.to(order.user.toString()).emit("order:update", order);
-      // also broadcast a refresh for admin dashboards
-      try {
-        io.emit("order:refresh", order);
-      } catch (err) {
-        console.error("Socket emit error:", err);
-      }
     }
+    // broadcast a refresh for admin dashboards (including guest/manual orders)
+    emitOrderRefresh(io, order);
 
     // Clear user's cart after successful order creation (only if user exists)
     if (req.user) {
@@ -173,12 +178,8 @@ export const updateOrderStatus = async (req, res) => {
   const io = req.app.get("io");
   if (io && order && order.user) {
     io.to(order.user.toString()).emit("order:update", order);
-    try {
-      io.emit("order:refresh", order);
-    } catch (err) {
-      console.error("Socket emit error:", err);
-    }
   }
+  emitOrderRefresh(io, order);
   res.json(order);
 };
 
@@ -204,12 +205,8 @@ export const cancelOrder = async (req, res) => {
     const io = req.app.get("io");
     if (io && order.user) {
       io.to(order.user.toString()).emit("order:update", order);
-      try {
-        io.emit("order:refresh", order);
-      } catch (err) {
-        console.error("Socket emit error:", err);
-      }
     }
+    emitOrderRefresh(io, order);
 
     res.json(order);
   } catch (error) {
@@ -313,6 +310,12 @@ export const verifyPayment = async (req, res) => {
       if (order.user) {
         await Cart.findOneAndUpdate({ user: order.user }, { items: [] });
       }
+
+      const io = req.app.get("io");
+      if (io && order?.user) {
+        io.to(order.user.toString()).emit("order:update", order);
+      }
+      emitOrderRefresh(io, order);
 
       return res.status(200).json({ message: "Payment verified successfully", order });
     } else {

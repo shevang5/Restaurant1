@@ -66,6 +66,14 @@ export default function AdminOrders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
+  const getSocketUrl = () => {
+    const serverUrl = import.meta.env.VITE_SERVER_URL;
+    if (serverUrl) {
+      return serverUrl.replace(/\/api\/?$/, "");
+    }
+    return "http://localhost:5000";
+  };
+
   const fetchOrders = async () => {
     try {
       const { data } = await axios.get("/orders");
@@ -115,9 +123,7 @@ export default function AdminOrders() {
         const { io } = await import(
           "https://cdn.socket.io/4.6.1/socket.io.esm.min.js"
         );
-        // use Vite env variable in browser
-        const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
-        socket = io(API, {
+        socket = io(getSocketUrl(), {
           withCredentials: true,
         });
 
@@ -133,6 +139,7 @@ export default function AdminOrders() {
 
     return () => {
       if (socket) {
+        socket.off("order:refresh");
         socket.disconnect();
         socket = null;
       }
