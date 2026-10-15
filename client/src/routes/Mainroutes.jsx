@@ -16,6 +16,11 @@ const UpdateProduct = lazy(() => import('../pages/admin/updateProduct'))
 const Cart = lazy(() => import('../pages/Cart'))
 const AdminOrders = lazy(() => import('../pages/admin/AdminOrders'))
 const CreateManualOrder = lazy(() => import('../pages/admin/CreateManualOrder'))
+const AdminLayout = lazy(() => import('../pages/admin/AdminLayout'))
+const AdminMenu = lazy(() => import('../pages/admin/AdminMenu'))
+const AdminAnalytics = lazy(() => import('../pages/admin/AdminAnalytics'))
+const AdminCustomers = lazy(() => import('../pages/admin/AdminCustomers'))
+const AdminSettings = lazy(() => import('../pages/admin/AdminSettings'))
 
 const Mainroutes = () => {
   return (
@@ -30,11 +35,17 @@ const Mainroutes = () => {
         <Route path="/auth/success" element={<AuthSuccess />} />
         <Route path="/register" element={<Register />} />
         <Route path="/myorders" element={<OrdersPage />} />
-        <Route path="/admin/orders" element={<AdminOrders />} />
-        <Route path="/admin/create-order" element={<CreateManualOrder />} />
-
-        <Route path="/admin/create-product" element={<CreateProduct />} />
-        <Route path="/admin/update-product/:id" element={<UpdateProduct />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminAnalytics />} />
+          <Route path="analytics" element={<AdminAnalytics />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="create-order" element={<CreateManualOrder />} />
+          <Route path="menu" element={<AdminMenu />} />
+          <Route path="create-product" element={<CreateProduct />} />
+          <Route path="update-product/:id" element={<UpdateProduct />} />
+          <Route path="customers" element={<AdminCustomers />} />
+          <Route path="settings" element={<AdminSettings />} />
+        </Route>
       </Routes>
     </Suspense>
   )

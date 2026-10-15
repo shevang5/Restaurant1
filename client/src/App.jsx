@@ -2,6 +2,7 @@
 import axios from 'axios';
 import React, { useEffect, Suspense, lazy } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import Loader from './components/Loader'
 import { asyncCurrentUsers, asyncLogoutUsers } from './store/action/userActions';
 import { asyncLoadProducts } from './store/action/productActions';
@@ -18,6 +19,8 @@ const App = () => {
   const { user } = useSelector((state) => state.usersReducer)
   const { products } = useSelector((state) => state.productsReducers)
   const { orders } = useSelector((state) => state.orders)
+  const location = useLocation();
+  const isAdminPath = location.pathname.startsWith('/admin');
 
   // establish socket connection for real-time updates
   useSocket();
@@ -31,9 +34,9 @@ const App = () => {
   }, [dispatch])
 
   return (
-    <div className="lg:pb-0 pb-20">
+    <div className={isAdminPath ? "min-h-screen" : "lg:pb-0 pb-20"}>
       <Suspense fallback={<Loader />}>
-        <Navbar />
+        {!isAdminPath && <Navbar />}
         <Mainroutes />
       </Suspense>
     </div>
