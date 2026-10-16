@@ -40,8 +40,8 @@ export default function AdminOrders() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [confirmAction, setConfirmAction] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [soundEnabled, setSoundEnabled] = useState(false);
-  const soundEnabledRef = useRef(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const soundEnabledRef = useRef(true);
   const audioContextRef = useRef(null);
   const cashRegisterAudioRef = useRef(null);
   const seenOrderIdsRef = useRef(new Set());
@@ -84,7 +84,6 @@ export default function AdminOrders() {
       cashAudio.muted = false;
       soundEnabledRef.current = true;
       setSoundEnabled(true);
-      playOrderSound(false);
     }
   };
 
@@ -99,7 +98,11 @@ export default function AdminOrders() {
       return;
     }
     const context = audioContextRef.current;
-    if (!context || context.state !== "running") return;
+    if (!context) return;
+    if (context.state !== "running") {
+      context.resume().then(() => playOrderSound(false)).catch(() => {});
+      return;
+    }
     const now = context.currentTime;
     const tone = (frequency, offset, duration, type = "sine", volume = 0.13) => {
       const oscillator = context.createOscillator();
@@ -120,6 +123,35 @@ export default function AdminOrders() {
     tone(1046, 0, 0.42, "sine", 0.24);
     tone(1318, 0.12, 0.48, "sine", 0.2);
   };
+
+  useEffect(() => {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass && !audioContextRef.current) audioContextRef.current = new AudioContextClass();
+    if (audioContextRef.current?.state === "suspended") audioContextRef.current.resume().catch(() => {});
+    if (!cashRegisterAudioRef.current) {
+      cashRegisterAudioRef.current = new Audio("/sounds/cash-register.mp3");
+      cashRegisterAudioRef.current.preload = "auto";
+    }
+
+    const unlockAudio = () => {
+      if (audioContextRef.current?.state === "suspended") audioContextRef.current.resume().catch(() => {});
+      const audio = cashRegisterAudioRef.current;
+      if (audio && audio.paused) {
+        audio.muted = true;
+        audio.play().then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.muted = false;
+        }).catch(() => { audio.muted = false; });
+      }
+    };
+    document.addEventListener("pointerdown", unlockAudio, { once: true });
+    document.addEventListener("keydown", unlockAudio, { once: true });
+    return () => {
+      document.removeEventListener("pointerdown", unlockAudio);
+      document.removeEventListener("keydown", unlockAudio);
+    };
+  }, []);
 
   useEffect(() => {
     let socket;
@@ -181,10 +213,10 @@ export default function AdminOrders() {
       <div className="ml-auto flex shrink-0 flex-wrap items-center gap-2"><button onClick={toggleOrderSounds} aria-pressed={soundEnabled} className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition ${soundEnabled ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}>{soundEnabled ? <Volume2 size={15}/> : <VolumeX size={15}/>} {soundEnabled ? "Sounds on" : "Enable sounds"}</button><Link to="/admin/create-order" className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-800"><Plus size={15}/>Create manual order</Link></div>
     </header>
 
-    <section className="grid min-w-0 grid-cols-1 items-start gap-4 sm:grid-cols-2 xl:grid-cols-5 2xl:grid-cols-[1.15fr_1.15fr_1.15fr_.75fr_.75fr]">
-      {COLUMNS.map(({ id, title, icon: Icon, accent, iconClass }, columnIndex) => <div key={id} style={{ "--card-index": columnIndex }} className={`admin-order-column min-w-0 overflow-hidden rounded-2xl border border-slate-200 border-t-4 ${accent} bg-slate-100/70`}>
+    <section className="admin-orders-board grid min-w-0 grid-cols-1 items-start gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      {COLUMNS.map(({ id, title, icon: Icon, accent, iconClass }, columnIndex) => <div key={id} style={{ "--card-index": columnIndex }} className={`admin-order-column min-w-0 overflow-hidden rounded-2xl border border-slate-200 border-t-4 ${accent} bg-slate-100/70 xl:flex xl:h-[calc(100vh-180px)] xl:flex-col`}>
         <div className="flex items-center justify-between gap-2 px-3 py-3 sm:px-4"><div className="flex min-w-0 items-center gap-2"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${iconClass}`}><Icon size={17}/></span><h2 className="truncate text-sm font-bold text-slate-800">{title}</h2></div><span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-slate-600 shadow-sm">{groupedOrders[id].length}</span></div>
-        <div className="max-h-[calc(100vh-290px)] min-h-36 space-y-2 overflow-y-auto px-2 pb-3 sm:px-3">
+        <div className="min-h-36 space-y-2 overflow-y-auto px-2 pb-3 sm:px-3 xl:min-h-0 xl:flex-1">
           {groupedOrders[id].length ? groupedOrders[id].map((order, cardIndex) => {
             const customer = order.user?.name || order.customerDetails?.name || "Guest customer";
             const status = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
@@ -195,17 +227,16 @@ export default function AdminOrders() {
               : order.deliveryType === "home"
                 ? [{ label: "Shipped", value: "shipped", style: "border-violet-200 text-violet-700 hover:bg-violet-50" }, { label: "Delivered", value: "delivered", style: "border-emerald-200 text-emerald-700 hover:bg-emerald-50" }, { label: "Cancel", value: "cancelled", style: "border-rose-200 text-rose-700 hover:bg-rose-50" }]
                 : [{ label: "Collected", value: "delivered", style: "border-emerald-200 text-emerald-700 hover:bg-emerald-50" }, { label: "Cancel", value: "cancelled", style: "border-rose-200 text-rose-700 hover:bg-rose-50" }];
-            if (isTerminal) return <article key={order._id} style={{ "--card-index": cardIndex }} className={`admin-order-card overflow-hidden rounded-xl border shadow-sm ${getOrderCardStyle(order)}`}>
-              <div className="flex items-center justify-between gap-2 px-3 py-2.5"><p className="min-w-0 truncate text-sm font-bold text-slate-900">{customer}</p><p className="shrink-0 text-base font-extrabold text-slate-900">{formatMoney(order.total)}</p></div>
+            if (isTerminal) return <article key={order._id} role="button" tabIndex={0} onClick={() => setSelectedOrder(order)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedOrder(order); } }} aria-label={`View order ${String(order._id).slice(-6).toUpperCase()} for ${customer}`} style={{ "--card-index": cardIndex }} className={`admin-order-card cursor-pointer overflow-hidden rounded-xl border shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 ${getOrderCardStyle(order)}`}>
+              <div className="flex items-center justify-between gap-2 px-3 pt-2.5"><div className="min-w-0"><p className="truncate text-sm font-bold text-slate-900">{customer}</p><p className="mt-0.5 text-[10px] font-semibold tracking-wide text-slate-500">#{String(order._id).slice(-6).toUpperCase()}</p></div><p className="shrink-0 text-base font-extrabold text-slate-900">{formatMoney(order.total)}</p></div>
               <div className="space-y-1.5 px-3 pb-2.5">{order.products?.slice(0, 2).map((item) => <div key={item._id} className="flex min-w-0 items-center gap-2 text-xs text-slate-700"><img src={item.product?.image} alt="" className="h-6 w-6 shrink-0 rounded object-cover ring-1 ring-slate-200"/><span className="min-w-0 truncate">{item.quantity}× {item.product?.name || "Menu item"}</span></div>)}{order.products?.length > 2 && <p className="pl-8 text-[11px] text-slate-500">+{order.products.length - 2} more items</p>}</div>
-              <div className="border-t border-slate-200/70 px-3 py-2"><button onClick={() => setSelectedOrder(order)} className="w-full rounded-lg border border-slate-200 bg-white/80 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-white">View details</button></div>
             </article>;
             return <article key={order._id} style={{ "--card-index": cardIndex }} className={`admin-order-card overflow-hidden rounded-xl border shadow-sm ${getOrderCardStyle(order)}`}>
               <div className="flex items-start justify-between gap-3 border-b border-slate-200/70 px-3 py-3"><div className="min-w-0"><p className="truncate text-lg font-bold leading-tight text-slate-900">{customer}</p><p className="mt-1 text-xs font-medium text-slate-600">{order.isPaid ? "Paid online" : "Payment pending"}</p></div><p className="shrink-0 text-right text-xl font-extrabold leading-tight text-slate-900">{formatMoney(order.total)}<span className="mt-1 block text-[10px] font-medium uppercase tracking-wide text-slate-500">Total</span></p></div>
               <div className="space-y-2.5 p-3"><div className="flex items-center justify-between gap-2 text-xs text-slate-600"><span className="flex min-w-0 items-center gap-1.5">{order.deliveryType === "home" ? <Bike size={14}/> : <ShoppingBag size={14}/>}<span className="truncate">{order.deliveryType === "home" ? "Home delivery" : "Pickup"}</span></span><span className="flex shrink-0 items-center gap-1"><CalendarDays size={13}/>{new Date(order.createdAt).toLocaleDateString()}</span></div>
                 {order.deliveryType === "home" && order.address?.line1 && <p className="flex items-start gap-1.5 text-xs text-slate-600"><MapPin size={13} className="mt-0.5 shrink-0"/><span className="line-clamp-2">{order.address.line1}{order.address.city ? `, ${order.address.city}` : ""}</span></p>}
                 <div className="border-t border-slate-200/70 pt-2"><p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500"><Package size={13}/>Items</p><div className="space-y-1.5">{order.products?.slice(0, 3).map((item) => <div key={item._id} className="flex min-w-0 items-center justify-between gap-2 text-xs text-slate-700"><span className="flex min-w-0 items-center gap-2"><img src={item.product?.image} alt="" className="h-7 w-7 shrink-0 rounded-md bg-white object-cover ring-1 ring-slate-200"/><span className="truncate">{item.quantity}× {item.product?.name || "Menu item"}</span></span><span className="shrink-0">{formatMoney(item.quantity * (item.price || item.product?.price))}</span></div>)}{order.products?.length > 3 && <p className="text-[11px] text-slate-500">+{order.products.length - 3} more items</p>}</div></div>
-                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/70 pt-2"><div className="flex min-w-0 items-center gap-2"><span className={`rounded-full px-2 py-1 text-[10px] font-semibold ${status.className}`}>{statusLabel}</span><span className="truncate text-[10px] font-semibold tracking-wide text-slate-600">#{String(order._id).slice(-6).toUpperCase()}</span></div><div className="flex flex-wrap gap-1.5">{actions.map((action) => <button key={action.label} onClick={() => setConfirmAction({ order, action })} className={`admin-order-action rounded-lg border bg-white/80 px-2.5 py-1.5 text-[11px] font-semibold transition ${action.style}`}>{action.label}</button>)}</div></div>
+                <div className="flex flex-nowrap items-center gap-1.5 border-t border-slate-200/70 pt-2"><div className="flex min-w-0 flex-1 items-center gap-1.5"><span className={`shrink-0 rounded-full px-1.5 py-1 text-[9px] font-semibold ${status.className}`}>{statusLabel}</span><span className="min-w-0 truncate text-[9px] font-semibold tracking-wide text-slate-600">#{String(order._id).slice(-6).toUpperCase()}</span></div><div className="flex shrink-0 flex-nowrap gap-1">{actions.map((action) => <button key={action.label} onClick={() => setConfirmAction({ order, action })} className={`admin-order-action whitespace-nowrap rounded-md border bg-white/80 px-1.5 py-1 text-[9px] font-semibold transition sm:px-2 ${action.style}`}>{action.label}</button>)}</div></div>
               </div>
             </article>;
           }) : <div className="col-span-full rounded-xl border border-dashed border-slate-300 bg-white/70 px-3 py-8 text-center"><div className="mx-auto grid h-9 w-9 place-items-center rounded-full bg-white text-slate-400"><Clock3 size={17}/></div><p className="mt-2 text-xs font-medium text-slate-500">No {id} orders</p></div>}
@@ -222,6 +253,9 @@ export default function AdminOrders() {
     </section></div>}
     {confirmAction && <div className="admin-order-backdrop fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) setConfirmAction(null); }}><section role="dialog" aria-modal="true" aria-labelledby="order-action-title" className="admin-order-dialog w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl"><h2 id="order-action-title" className="text-lg font-bold text-slate-900">Confirm {confirmAction.action.label.toLowerCase()}?</h2><p className="mt-2 text-sm leading-6 text-slate-600">{confirmAction.action.confirmation || (confirmAction.action.value === "cancelled" ? "This will cancel the order." : `This will mark the order as ${confirmAction.action.label.toLowerCase()}.`)}</p><p className="mt-2 text-xs text-slate-400">Order #{String(confirmAction.order._id).slice(-6).toUpperCase()} · {confirmAction.order.user?.name || confirmAction.order.customerDetails?.name || "Guest customer"}</p><div className="mt-5 flex justify-end gap-2"><button onClick={() => setConfirmAction(null)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Go back</button><button onClick={() => { const { order, action } = confirmAction; setConfirmAction(null); setSelectedOrder(null); handleStatusChange(order._id, action.value); }} className={`rounded-xl px-4 py-2.5 text-sm font-semibold text-white ${confirmAction.action.value === "cancelled" ? "bg-rose-600 hover:bg-rose-700" : "bg-emerald-700 hover:bg-emerald-800"}`}>Confirm</button></div></section></div>}
     <style>{`
+      @media (min-width: 1280px) {
+        .admin-orders-board { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, .9fr) minmax(0, .65fr) minmax(0, .65fr); }
+      }
       @keyframes admin-order-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
       @keyframes admin-order-fade { from { opacity: 0; } to { opacity: 1; } }
       @keyframes admin-order-pop { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
