@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { createElement, useEffect } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Activity, ChefHat, ClipboardList, LogOut, Settings, Users } from "lucide-react";
+import { Activity, ChefHat, ClipboardList, FileText, LogOut, Settings, Users } from "lucide-react";
 import { asyncGetAllOrders } from "../../store/action/orderActions";
 import { asyncLogoutUsers } from "../../store/action/userActions";
 
@@ -10,6 +10,7 @@ const links = [
   { to: "/admin/menu", label: "Edit menu", icon: ChefHat },
   { to: "/admin/analytics", label: "Analytics", icon: Activity },
   { to: "/admin/customers", label: "Customers", icon: Users },
+  { to: "/admin/reports", label: "Monthly report", icon: FileText },
 ];
 
 export default function AdminLayout() {
@@ -37,8 +38,8 @@ export default function AdminLayout() {
         </NavLink>
         <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[.18em] text-slate-400 xl:hidden 2xl:block">Workspace</p>
         <nav className="flex gap-1 overflow-x-auto md:flex-col">
-          {links.map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} title={label} className={({ isActive }) => `relative flex shrink-0 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition xl:justify-center xl:px-0 2xl:justify-start 2xl:px-3 ${isActive ? "bg-orange-500 text-white shadow-sm shadow-orange-200" : "text-slate-600 hover:bg-orange-50 hover:text-orange-700"}`}>
-            <Icon size={18} /><span className="xl:hidden 2xl:inline">{label}</span>{label === "Manage orders" && pending > 0 && <span className={`ml-auto rounded-full px-2 py-0.5 text-xs xl:absolute xl:-right-1 xl:-top-1 xl:ml-0 xl:px-1.5 2xl:static 2xl:ml-auto 2xl:px-2 ${"bg-orange-100 text-orange-700"}`}>{pending}</span>}
+          {links.map(({ to, label, icon: IconComponent }) => <NavLink key={to} to={to} title={label} className={({ isActive }) => `relative flex shrink-0 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition xl:justify-center xl:px-0 2xl:justify-start 2xl:px-3 ${isActive ? "bg-orange-500 text-white shadow-sm shadow-orange-200" : "text-slate-600 hover:bg-orange-50 hover:text-orange-700"}`}>
+            {createElement(IconComponent, { size: 18 })}<span className="xl:hidden 2xl:inline">{label}</span>{label === "Manage orders" && pending > 0 && <span className="ml-auto rounded-full bg-orange-100 px-2 py-0.5 text-xs text-orange-700 xl:absolute xl:-right-1 xl:-top-1 xl:ml-0 xl:px-1.5 2xl:static 2xl:ml-auto 2xl:px-2">{pending}</span>}
           </NavLink>)}
         </nav>
         <div className="mt-auto hidden border-t border-slate-200 pt-4 md:block">

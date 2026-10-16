@@ -1,213 +1,118 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { asyncLoginUsers } from '../../store/action/userActions';
-import axios from '../../api/config';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { ArrowLeft, Mail, ShoppingBag, Sparkles, Truck, X } from "lucide-react";
+import { asyncLoginUsers } from "../../store/action/userActions";
+import axios from "../../api/config";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showLogin, setShowLogin] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotMsg, setForgotMsg] = useState('');
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotMsg, setForgotMsg] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(asyncLoginUsers({ email, password }))
-      .then(() => navigate('/'))
-      .catch((error) => console.log(error));
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await dispatch(asyncLoginUsers({ email, password }));
+      navigate("/");
+    } catch (error) {
+      console.error("Login failed", error);
+    }
   };
 
-  const handleForgot = async (e) => {
-    e.preventDefault();
+  const handleForgot = async (event) => {
+    event.preventDefault();
     setForgotLoading(true);
-    setForgotMsg('');
+    setForgotMsg("");
     try {
-      const { data } = await axios.post('/auth/forgot-password', { email: forgotEmail });
-      setForgotMsg(data.message || 'If your email exists, a reset link was sent.');
-    } catch (err) {
-      setForgotMsg(err.response?.data?.message || 'Error sending reset link.');
+      const { data } = await axios.post("/auth/forgot-password", { email: forgotEmail });
+      setForgotMsg(data.message || "If your email exists, a reset link was sent.");
+    } catch (error) {
+      setForgotMsg(error.response?.data?.message || "Error sending reset link.");
+    } finally {
+      setForgotLoading(false);
     }
-    setForgotLoading(false);
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-orange-50/30">
-
-      {/* Left Text/Image Side (Bakery Vibe) */}
-      <div className="hidden lg:flex w-1/2 relative bg-[var(--color-primary)] items-center justify-center p-12">
-        <div className="absolute inset-0">
-          <img
-            src="/images/bgImg.jpg"
-            alt="Delicious assortment of fresh bakery goods"
-            className="w-full h-full object-cover mix-blend-overlay opacity-40"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/90 to-black/40"></div>
+    <main className="min-h-[100svh] bg-[#ffe2d9] sm:flex sm:items-center sm:justify-center sm:p-5">
+      <section className="relative isolate flex min-h-[100svh] w-full max-w-[430px] flex-col overflow-hidden bg-[#e52c08] px-6 pb-5 pt-7 text-white sm:min-h-[820px] sm:rounded-[34px] sm:shadow-[0_24px_70px_rgba(116,34,15,.28)]">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute -left-24 top-40 h-64 w-64 rounded-full bg-[#f54a20]/70 blur-2xl" />
+          <div className="absolute -right-28 top-[42%] h-72 w-72 rounded-full bg-[#b91c06]/55 blur-2xl" />
+          <div className="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-[#f25a30]/55 blur-3xl" />
+          <div className="absolute inset-0 opacity-[.12]" style={{ backgroundImage: "repeating-linear-gradient(162deg, transparent 0 40px, #ffac8f 41px 54px, transparent 55px 88px)" }} />
         </div>
 
-        <div className="relative z-10 px-12 text-center text-white">
-          <h1 className="text-6xl font-extrabold mb-6 tracking-wide font-serif drop-shadow-md">
-            RESTAURANT
+        <header className="relative flex justify-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-[#fff1e9] px-4 py-2 text-[11px] font-bold tracking-wide text-[#9b250d] shadow-sm">
+            <Sparkles size={14} className="text-orange-600" /> FRESH FLAVORS · READY TO ORDER
+          </div>
+        </header>
+
+        <div className="relative z-10 mt-7 text-center">
+          <p className="text-xs font-extrabold uppercase tracking-[.28em] text-orange-100">Good food, good mood</p>
+          <h1 className="mt-3 text-[clamp(2.7rem,12vw,3.65rem)] font-black leading-[.88] tracking-[-.055em] drop-shadow-sm">
+            Welcome to<br /><span className="text-[#fff1df]">Restaurant</span>
           </h1>
-          <p className="text-xl text-orange-50 italic">
-            "The smell of fresh baking is the smell of home."
-          </p>
-          {/* <p className="mt-8 text-lg text-orange-100 max-w-lg mx-auto">
-            Welcome back! Please login to your account to continue ordering our delightful pastries, artisan breads, and coffee.
-          </p> */}
         </div>
-      </div>
 
-      {/* Right Form Side */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-16">
-        <div className="w-full max-w-md space-y-8 bg-white p-10 rounded-3xl shadow-xl border border-orange-100">
-          <div className="text-center">
-            <h2 className="text-4xl font-bold text-gray-900">
-              Sign In
-            </h2>
-            <p className="mt-3 text-base text-gray-500">
-              Your next treat is just a click away!
-            </p>
+        <div className="relative mx-auto mt-5 h-[clamp(190px,34vh,285px)] w-full max-w-[340px] shrink-0">
+          <div className="absolute inset-x-4 inset-y-3 rotate-[-5deg] rounded-[44%_56%_48%_52%] bg-[#ffb15c] shadow-[0_22px_35px_rgba(86,18,5,.3)]" />
+          <div className="absolute inset-x-5 inset-y-1 rotate-[3deg] overflow-hidden rounded-[48%_52%_42%_58%] border-[5px] border-[#ffad68] bg-orange-200 shadow-xl">
+            <img src="/images/bgImg.jpg" alt="Freshly made sandwich with vegetables" className="h-full w-full scale-110 object-cover object-[50%_55%]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#8f210d]/35 via-transparent to-white/5" />
           </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 ml-1" htmlFor="email">
-                  Email Address
-                </label>
-                <div className="mt-1">
-                  <input
-                    type="email"
-                    id="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-5 py-4 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200 bg-gray-50 text-base"
-                    placeholder="you@example.com"
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between ml-1 mb-1">
-                  <label className="block text-sm font-semibold text-gray-700" htmlFor="password">
-                    Password
-                  </label>
-                  <button
-                    type="button"
-                    className="text-sm font-medium text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] hover:underline"
-                    onClick={() => setShowForgot(true)}
-                  >
-                    Forgot Password?
-                  </button>
-                </div>
-                <div className="mt-1">
-                  <input
-                    type="text"
-                    id="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-5 py-4 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200 bg-gray-50 text-base"
-                    placeholder="********"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                className="w-full flex justify-center py-4 px-4 rounded-xl text-lg font-bold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary)]/20 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-[0.98]"
-              >
-                Login
-              </button>
-            </div>
-
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-500 font-medium">Or continue with</span>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <a
-                  href={`${import.meta.env.VITE_SERVER_URL}/auth/google`}
-                  className="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 font-bold py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all duration-200 shadow-sm hover:shadow"
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path
-                      fill="currentColor"
-                      d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.36,19.27 5,16.25 5,12C5,7.9 8.2,4.73 12.2,4.73C15.29,4.73 17.1,6.7 17.1,6.7L19,4.72C19,4.72 16.56,2 12.1,2C6.42,2 2.03,6.8 2.03,12C2.03,17.05 6.16,22 12.25,22C17.6,22 21.5,18.33 21.5,12.91C21.5,11.76 21.35,11.1 21.35,11.1V11.1Z"
-                    />
-                  </svg>
-                  Sign in with Google
-                </a>
-              </div>
-            </div>
-
-            <div className="text-center mt-6">
-              <span className="text-gray-600">Don't have an account? </span>
-              <Link to="/register" className="font-bold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] transition duration-200 hover:underline">
-                Create an account
-              </Link>
-            </div>
-
-          </form>
+          <div className="absolute -bottom-1 right-4 rotate-3 rounded-full border border-white/30 bg-[#fff1e8] px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-[#a12a12] shadow-lg">Made fresh for you</div>
         </div>
-      </div>
 
-      {/* Forgot Password Modal - Styled to match */}
-      {showForgot && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm relative transform transition-all scale-100">
-            <button
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-              onClick={() => { setShowForgot(false); setForgotMsg(''); }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 6 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <h3 className="text-2xl font-bold mb-2 text-gray-900">Reset Password</h3>
-            <p className="text-gray-500 mb-6 text-sm">Enter your email and we'll send you a link to reset your password.</p>
+        <div className="relative z-10 mt-auto space-y-3 pt-5">
+          <button type="button" onClick={() => setShowLogin(true)} className="flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full bg-[#fff0e9] px-5 py-3 text-sm font-bold text-[#3c211b] shadow-md transition hover:bg-white active:scale-[.98]">
+            <Mail size={17} /> Continue with Email
+          </button>
+          <Link to="/products" className="flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full border border-white/90 bg-transparent px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 active:scale-[.98]">
+            <ShoppingBag size={17} /> Order Delivery <Truck size={16} />
+          </Link>
+          <p className="mx-auto max-w-[340px] pt-1 text-center text-[9px] leading-[1.55] text-orange-50/90">By continuing, you agree to our Terms and Conditions and Privacy Policy.</p>
+        </div>
 
-            <form onSubmit={handleForgot} className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 ml-1 mb-1">Email Address</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="you@example.com"
-                  value={forgotEmail}
-                  onChange={e => setForgotEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent transition-all duration-200 bg-gray-50"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={forgotLoading}
-                className="w-full py-3 px-4 rounded-xl font-bold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] focus:outline-none focus:ring-4 focus:ring-[var(--color-primary)]/20 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {forgotLoading ? 'Sending...' : 'Send Reset Link'}
-              </button>
+        {showLogin && <div className="absolute inset-0 z-30 flex items-end bg-black/40 p-3 backdrop-blur-[2px] sm:items-center sm:p-5" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowLogin(false); }}>
+          <section role="dialog" aria-modal="true" aria-labelledby="login-title" className="max-h-[92%] w-full overflow-y-auto rounded-[28px] bg-white p-5 text-slate-900 shadow-2xl sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div><p className="text-xs font-bold uppercase tracking-[.16em] text-orange-600">Welcome back</p><h2 id="login-title" className="mt-1 text-2xl font-black">Sign in to continue</h2></div>
+              <button type="button" onClick={() => setShowLogin(false)} aria-label="Close sign in" className="rounded-full bg-slate-100 p-2 text-slate-500 hover:bg-slate-200"><X size={18}/></button>
+            </div>
+            <form onSubmit={handleSubmit} className="mt-5 space-y-3.5">
+              <label className="block text-sm font-semibold text-slate-700" htmlFor="email">Email address<input type="email" id="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base font-normal outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100" /></label>
+              <label className="block text-sm font-semibold text-slate-700" htmlFor="password"><span className="flex items-center justify-between">Password<button type="button" onClick={() => { setForgotEmail(email); setShowForgot(true); }} className="text-xs font-bold text-orange-700 hover:underline">Forgot password?</button></span><input type="password" id="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base font-normal outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100" /></label>
+              <button type="submit" className="w-full rounded-xl bg-[#e52c08] px-4 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#c92305] active:scale-[.99]">Sign in</button>
             </form>
-            {forgotMsg && (
-              <div className={`mt-4 p-3 rounded-lg text-sm text-center font-medium ${forgotMsg.includes('Error') ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
-                {forgotMsg}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+            <div className="my-4 flex items-center gap-3 text-xs text-slate-400"><span className="h-px flex-1 bg-slate-200"/>or continue with<span className="h-px flex-1 bg-slate-200"/></div>
+            <a href={`${import.meta.env.VITE_SERVER_URL}/auth/google`} className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+              <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.75 3.27-8.1Z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.28-1.93-6.15-4.53H2.16v2.84A11 11 0 0 0 12 23Z"/><path fill="#FBBC05" d="M5.85 14.11a6.6 6.6 0 0 1 0-4.22V7.05H2.16a11 11 0 0 0 0 9.9l3.69-2.84Z"/><path fill="#EA4335" d="M12 5.36c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.01 14.97 1 12 1a11 11 0 0 0-9.84 6.05l3.69 2.84C6.72 7.29 9.14 5.36 12 5.36Z"/></svg>
+              Continue with Google
+            </a>
+            <p className="mt-5 text-center text-sm text-slate-500">New here? <Link to="/register" className="font-bold text-orange-700 hover:underline">Create an account</Link></p>
+            <button type="button" onClick={() => setShowLogin(false)} className="mt-4 flex w-full items-center justify-center gap-1 text-xs font-semibold text-slate-400 hover:text-slate-700"><ArrowLeft size={14}/> Back to welcome</button>
+          </section>
+        </div>}
+
+        {showForgot && <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <section role="dialog" aria-modal="true" aria-labelledby="forgot-title" className="relative w-full max-w-sm rounded-2xl bg-white p-6 text-slate-900 shadow-2xl">
+            <button type="button" onClick={() => { setShowForgot(false); setForgotMsg(""); }} aria-label="Close password reset" className="absolute right-4 top-4 rounded-lg p-1 text-slate-400 hover:bg-slate-100"><X size={20}/></button>
+            <h2 id="forgot-title" className="text-xl font-bold">Reset password</h2><p className="mt-2 text-sm text-slate-500">Enter your email and we’ll send a reset link.</p>
+            <form onSubmit={handleForgot} className="mt-5 space-y-3"><label className="block text-sm font-semibold" htmlFor="forgot-email">Email address<input id="forgot-email" type="email" required value={forgotEmail} onChange={(event) => setForgotEmail(event.target.value)} placeholder="you@example.com" className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-normal outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100"/></label><button type="submit" disabled={forgotLoading} className="w-full rounded-xl bg-[#e52c08] px-4 py-3 font-bold text-white disabled:opacity-60">{forgotLoading ? "Sending…" : "Send reset link"}</button></form>
+            {forgotMsg && <p role="status" className={`mt-3 rounded-xl p-3 text-center text-sm ${forgotMsg.includes("Error") ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}>{forgotMsg}</p>}
+          </section>
+        </div>}
+      </section>
+    </main>
   );
 };
 

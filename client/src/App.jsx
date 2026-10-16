@@ -21,6 +21,8 @@ const App = () => {
   const { orders } = useSelector((state) => state.orders)
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
+  const isLoginPath = location.pathname === '/login';
+  const hideNavigation = isAdminPath || isLoginPath;
 
   // establish socket connection for real-time updates
   useSocket();
@@ -34,9 +36,9 @@ const App = () => {
   }, [dispatch])
 
   return (
-    <div className={isAdminPath ? "min-h-screen" : "lg:pb-0 pb-20"}>
+    <div className={hideNavigation ? "min-h-screen" : "lg:pb-0 pb-20"}>
       <Suspense fallback={<Loader />}>
-        {!isAdminPath && <Navbar />}
+        {!hideNavigation && <Navbar />}
         <Mainroutes />
       </Suspense>
     </div>

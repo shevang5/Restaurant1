@@ -21,6 +21,8 @@ const AdminMenu = lazy(() => import('../pages/admin/AdminMenu'))
 const AdminAnalytics = lazy(() => import('../pages/admin/AdminAnalytics'))
 const AdminCustomers = lazy(() => import('../pages/admin/AdminCustomers'))
 const AdminSettings = lazy(() => import('../pages/admin/AdminSettings'))
+const AdminMonthlyReport = lazy(() => import('../pages/admin/AdminMonthlyReport'))
+const SavedPage = lazy(() => import('../pages/SavedPage'))
 
 const Mainroutes = () => {
   return (
@@ -35,6 +37,7 @@ const Mainroutes = () => {
         <Route path="/auth/success" element={<AuthSuccess />} />
         <Route path="/register" element={<Register />} />
         <Route path="/myorders" element={<OrdersPage />} />
+        <Route path="/saved" element={<SavedPage />} />
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminAnalytics />} />
           <Route path="analytics" element={<AdminAnalytics />} />
@@ -44,6 +47,7 @@ const Mainroutes = () => {
           <Route path="create-product" element={<CreateProduct />} />
           <Route path="update-product/:id" element={<UpdateProduct />} />
           <Route path="customers" element={<AdminCustomers />} />
+          <Route path="reports" element={<AdminMonthlyReport />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
