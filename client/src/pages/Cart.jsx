@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loadCart } from "../store/reducers/cartSlice";
 import EmptyCart from "../components/EmptyCart";
+import { Banknote, Bike, CalendarClock, MapPin, PackageCheck, Smartphone, Store, X } from "lucide-react";
 
 const INR = "\u20B9";
 const getRegisteredPhone = () => {
@@ -323,157 +324,47 @@ const Cart = () => {
       </div>
 
       {showCheckoutPopup && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Delivery Details</h2>
-              <button
-                type="button"
-                onClick={() => setShowCheckoutPopup(false)}
-                className="text-gray-500 hover:text-gray-800 text-sm font-semibold"
-              >
-                Close
-              </button>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/55 p-0 backdrop-blur-sm sm:items-center sm:p-4">
+          <div className="max-h-[94svh] w-full max-w-lg overflow-y-auto rounded-t-[28px] border border-white/70 bg-white p-5 shadow-2xl sm:max-h-[90vh] sm:rounded-3xl sm:p-6">
+            <div className="mb-5 flex items-start justify-between">
+              <div><p className="text-xs font-bold uppercase tracking-[.14em] text-orange-600">Almost there</p><h2 className="mt-1 text-xl font-extrabold text-slate-900">Delivery details</h2><p className="mt-1 text-sm text-slate-500">Choose how you’d like to receive your order.</p></div>
+              <button type="button" onClick={() => setShowCheckoutPopup(false)} aria-label="Close checkout" className="rounded-full bg-slate-100 p-2 text-slate-500 transition hover:bg-slate-200 hover:text-slate-800"><X size={18}/></button>
             </div>
 
-            <div className="flex p-1 bg-gray-100 rounded-xl mb-6">
-              <button
-                type="button"
-                onClick={() => setDeliveryType("pickup")}
-                className={`flex-1 py-2 rounded-lg font-bold transition-all ${
-                  deliveryType === "pickup" ? "bg-white shadow-sm text-indigo-600" : "text-gray-500"
-                }`}
-              >
-                Pickup
-              </button>
-              <button
-                type="button"
-                onClick={() => setDeliveryType("home")}
-                className={`flex-1 py-2 rounded-lg font-bold transition-all ${
-                  deliveryType === "home" ? "bg-white shadow-sm text-indigo-600" : "text-gray-500"
-                }`}
-              >
-                Delivery
-              </button>
+            <div className="mb-5 grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1.5">
+              <button type="button" onClick={() => setDeliveryType("pickup")} aria-pressed={deliveryType === "pickup"} className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition ${deliveryType === "pickup" ? "border-orange-100 bg-white text-orange-700 shadow-sm" : "border-transparent text-slate-500 hover:text-slate-800"}`}><Store size={17}/> Pickup</button>
+              <button type="button" onClick={() => setDeliveryType("home")} aria-pressed={deliveryType === "home"} className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition ${deliveryType === "home" ? "border-orange-100 bg-white text-orange-700 shadow-sm" : "border-transparent text-slate-500 hover:text-slate-800"}`}><Bike size={18}/> Delivery</button>
             </div>
 
-            <form onSubmit={checkout} className="space-y-4">
+            <form onSubmit={checkout} className="space-y-5">
               {deliveryType === "home" ? (
                 <div className="space-y-3 animate-in fade-in duration-300">
-                  <input
-                    required
-                    className="w-full border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none border"
-                    placeholder="Street Address"
-                    value={address.line1}
-                    onChange={(e) => setAddress({ ...address, line1: e.target.value })}
-                  />
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      required
-                      className="border-gray-200 rounded-xl p-3 border outline-none"
-                      placeholder="City"
-                      value={address.city}
-                      onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                    />
-                    <input
-                      required
-                      className="border-gray-200 rounded-xl p-3 border outline-none"
-                      placeholder="Zip"
-                      value={address.postalCode}
-                      onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
-                    />
-                  </div>
-                  {/* phone number for delivery; stored and re-used */}
-                  <input
-                    required
-                    className="w-full border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none border"
-                    placeholder="Phone Number"
-                    value={address.phone}
-                    onChange={(e) => setAddress({ ...address, phone: e.target.value })}
-                  />
+                  <label className="block text-xs font-bold uppercase tracking-wide text-slate-500">Delivery address<div className="relative mt-1.5"><MapPin size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/><input required className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100" placeholder="Street address" value={address.line1} onChange={(e) => setAddress({ ...address, line1: e.target.value })}/></div></label>
+                  <div className="grid grid-cols-2 gap-2"><input required className="rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" placeholder="City" value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })}/><input required className="rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" placeholder="Postal code" value={address.postalCode} onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}/></div>
+                  <input required type="tel" className="w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" placeholder="Phone number" value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })}/>
                 </div>
               ) : (
                 <div className="space-y-3 animate-in fade-in duration-300">
-                  <input
-                    required
-                    className="w-full border-gray-200 rounded-xl p-3 border outline-none"
-                    placeholder="Phone Number"
-                    value={pickupInfo.phone}
-                    onChange={(e) => setPickupInfo({ ...pickupInfo, phone: e.target.value })}
-                  />
-                  <label className="text-xs font-bold text-gray-400 uppercase ml-1">Pickup Time</label>
-                  <input
-                    required
-                    type="datetime-local"
-                    className="w-full border-gray-200 rounded-xl p-3 border outline-none"
-                    value={pickupInfo.pickTime}
-                    onChange={(e) =>
-                      setPickupInfo({
-                        ...pickupInfo,
-                        pickTime: e.target.value,
-                      })
-                    }
-                  />
+                  <input required type="tel" className="w-full rounded-xl border border-slate-200 bg-white p-3 text-sm outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" placeholder="Phone number" value={pickupInfo.phone} onChange={(e) => setPickupInfo({ ...pickupInfo, phone: e.target.value })}/>
+                  <label className="block text-xs font-bold uppercase tracking-wide text-slate-500">Pickup time<div className="relative mt-1.5"><CalendarClock size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/><input required type="datetime-local" className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm text-slate-700 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100" value={pickupInfo.pickTime} onChange={(e) => setPickupInfo({ ...pickupInfo, pickTime: e.target.value })}/></div></label>
                 </div>
               )}
 
-              <hr className="my-6 border-gray-50" />
-
-              <h3 className="font-bold mb-3">Payment Method</h3>
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("offline")}
-                  className={`p-3 rounded-xl border-2 transition-all ${
-                    paymentMethod === "offline"
-                      ? "border-green-500 bg-green-50 text-green-700"
-                      : "border-gray-100 hover:border-gray-200"
-                  }`}
-                >
-                  <div className="text-sm font-bold">Cash</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("online")}
-                  className={`p-3 rounded-xl border-2 transition-all ${
-                    paymentMethod === "online"
-                      ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                      : "border-gray-100 hover:border-gray-200"
-                  }`}
-                >
-                  <div className="text-sm font-bold">UPI</div>
-                </button>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-xl space-y-1 mb-6">
-                {safeCart.map((item) => {
-                  const itemName = item.product?.name || "Product";
-                  const lineTotal = Math.round(item.price || item.product?.price || 0) * item.quantity;
-                  return (
-                    <div key={item._id} className="flex justify-between text-gray-600">
-                      <span>{itemName}</span>
-                      <span>
-                        {INR}
-                        {lineTotal}
-                      </span>
-                    </div>
-                  );
-                })}
-                <div className="flex justify-between text-xl font-black text-gray-900 pt-2 border-t">
-                  <span>Total</span>
-                  <span>
-                    {INR}
-                    {formattedTotal}
-                  </span>
+              <section className="border-t border-slate-100 pt-4">
+                <h3 className="mb-3 text-sm font-extrabold text-slate-900">Payment method</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <button type="button" onClick={() => setPaymentMethod("offline")} aria-pressed={paymentMethod === "offline"} className={`flex min-h-[76px] min-w-0 items-center gap-2 rounded-2xl border p-2.5 text-left transition sm:gap-3 sm:p-3 ${paymentMethod === "offline" ? "border-orange-500 bg-orange-50 ring-2 ring-orange-100" : "border-slate-200 bg-white hover:border-orange-200"}`}><span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl sm:h-10 sm:w-10 ${paymentMethod === "offline" ? "bg-orange-500 text-white" : "bg-slate-100 text-slate-500"}`}><Banknote size={19}/></span><span className="min-w-0"><span className="block text-xs font-bold leading-4 text-slate-900 sm:text-sm">Cash on {deliveryType === "home" ? "delivery" : "pickup"}</span><span className="mt-0.5 block text-[10px] leading-4 text-slate-500">Pay when you receive it</span></span></button>
+                  <button type="button" onClick={() => setPaymentMethod("online")} aria-pressed={paymentMethod === "online"} className={`flex min-h-[76px] min-w-0 items-center gap-2 rounded-2xl border p-2.5 text-left transition sm:gap-3 sm:p-3 ${paymentMethod === "online" ? "border-orange-500 bg-orange-50 ring-2 ring-orange-100" : "border-slate-200 bg-white hover:border-orange-200"}`}><span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl sm:h-10 sm:w-10 ${paymentMethod === "online" ? "bg-orange-500 text-white" : "bg-slate-100 text-slate-500"}`}><Smartphone size={19}/></span><span className="min-w-0"><span className="block text-xs font-bold leading-4 text-slate-900 sm:text-sm">Pay online</span><span className="mt-0.5 block text-[10px] leading-4 text-slate-500">UPI and more</span></span></button>
                 </div>
+                {paymentMethod === "online" && <div className="mt-3 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5"><p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-slate-500">UPI apps in secure checkout</p><div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700"><span className="grid h-5 w-5 place-items-center rounded-full bg-purple-700 text-[10px] font-black text-white">P</span>PhonePe</span><span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700"><span className="font-black tracking-tight"><span className="text-blue-500">G</span><span className="text-red-500">o</span><span className="text-yellow-500">o</span><span className="text-blue-500">g</span><span className="text-green-500">l</span><span className="text-red-500">e</span></span>Pay</span><span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-black tracking-tight text-blue-600">paytm</span></div></div>}
+              </section>
+
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <div className="max-h-28 space-y-2 overflow-y-auto">{safeCart.map((item) => { const itemName = item.product?.name || "Product"; const lineTotal = Math.round(item.price || item.product?.price || 0) * item.quantity; return <div key={item._id} className="flex justify-between gap-3 text-sm text-slate-600"><span className="truncate">{itemName}</span><span className="shrink-0">{INR}{lineTotal}</span></div>; })}</div>
+                <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 text-lg font-extrabold text-slate-900"><span>Total</span><span>{INR}{formattedTotal}</span></div>
               </div>
 
-              <button
-                type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-indigo-200 transition-all transform active:scale-95"
-              >
-                Confirm & Place Order
-              </button>
+              <button type="submit" className="w-full rounded-2xl bg-orange-600 py-4 text-sm font-extrabold text-white shadow-lg shadow-orange-200 transition hover:bg-orange-700 active:scale-[.99]">Confirm & Place Order</button>
             </form>
           </div>
         </div>
