@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import Loader from '../components/Loader'
 
 // Lazy-loaded pages
@@ -24,22 +25,51 @@ const AdminSettings = lazy(() => import('../pages/admin/AdminSettings'))
 const AdminMonthlyReport = lazy(() => import('../pages/admin/AdminMonthlyReport'))
 const SavedPage = lazy(() => import('../pages/SavedPage'))
 
+function getStoredSession() {
+  try {
+    return JSON.parse(localStorage.getItem('user'))
+  } catch {
+    localStorage.removeItem('user')
+    return null
+  }
+}
+
+function RequireAdmin({ children }) {
+  const reduxSession = useSelector((state) => state.usersReducer.user)
+  const session = reduxSession || getStoredSession()
+  const user = session?.user || session
+
+  if (!session?.token || user?.role !== 'admin') {
+    return <Navigate to={session?.token ? '/' : '/login'} replace />
+  }
+
+  return children
+}
+
+function ExcludeAdmin({ children }) {
+  const reduxSession = useSelector((state) => state.usersReducer.user)
+  const session = reduxSession || getStoredSession()
+  const user = session?.user || session
+
+  return user?.role === 'admin' ? <Navigate to="/admin/orders" replace /> : children
+}
+
 const Mainroutes = () => {
   return (
     <Suspense fallback={<Loader />}>
       <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/products' element={<Products />} />
-        <Route path='/products/:id' element={<ProductDetails />} />
-        <Route path='/cart' element={<Cart />} />
+        <Route path='/' element={<ExcludeAdmin><Home /></ExcludeAdmin>} />
+        <Route path='/products' element={<ExcludeAdmin><Products /></ExcludeAdmin>} />
+        <Route path='/products/:id' element={<ExcludeAdmin><ProductDetails /></ExcludeAdmin>} />
+        <Route path='/cart' element={<ExcludeAdmin><Cart /></ExcludeAdmin>} />
         <Route path="/login" element={<Login />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/auth/success" element={<AuthSuccess />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/myorders" element={<OrdersPage />} />
-        <Route path="/saved" element={<SavedPage />} />
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminAnalytics />} />
+        <Route path="/myorders" element={<ExcludeAdmin><OrdersPage /></ExcludeAdmin>} />
+        <Route path="/saved" element={<ExcludeAdmin><SavedPage /></ExcludeAdmin>} />
+        <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
+          <Route index element={<AdminOrders />} />
           <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="create-order" element={<CreateManualOrder />} />

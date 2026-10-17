@@ -36,8 +36,8 @@ const AuthSuccess = () => {
         dispatch(loadUser(userData));
 
         
-        // Redirect to home page
-        navigate('/');
+        // Send administrators straight to their workspace.
+        navigate(payload.role === 'admin' ? '/admin/orders' : '/');
       } catch (error) {
         console.error('Error processing token:', error);
         navigate('/login?error=token_processing_failed');

@@ -20,7 +20,8 @@ const LoginPage = () => {
     event.preventDefault();
     try {
       await dispatch(asyncLoginUsers({ email, password }));
-      navigate("/");
+      const session = JSON.parse(localStorage.getItem("user") || "null");
+      navigate((session?.user || session)?.role === "admin" ? "/admin/orders" : "/");
     } catch (error) {
       console.error("Login failed", error);
     }
