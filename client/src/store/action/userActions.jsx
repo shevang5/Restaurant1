@@ -1,5 +1,6 @@
 import { loadUser, removeUser } from '../reducers/userSlice';
 import axios from "../../api/config";
+import { toast } from "react-toastify";
 
 export const asyncRegisterUser = (user) => async (dispatch) => {
   try {
@@ -8,7 +9,7 @@ export const asyncRegisterUser = (user) => async (dispatch) => {
     dispatch(loadUser(data));
     console.log("✅ User registered:", data);
   } catch (error) {
-    alert(error.userMessage || error.response?.data?.message || "Registration failed");
+    toast.error(error.userMessage || error.response?.data?.message || "Registration failed");
     throw error;
   }
 };
@@ -20,7 +21,7 @@ export const asyncLoginUsers = (user) => async (dispatch) => {
     dispatch(loadUser(data));
     console.log("✅ User logged in:", data);
   } catch (error) {
-    alert(error.userMessage || error.response?.data?.message || "Login failed");
+    toast.error(error.userMessage || error.response?.data?.message || "Login failed");
     throw error;
   }
 };

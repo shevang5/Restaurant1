@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { io } from "socket.io-client";
 import axios from "../../api/config";
+import { toast } from "react-toastify";
 import { Bike, CalendarDays, CheckCircle2, Clock3, Filter, MapPin, Package, Plus, Search, ShoppingBag, Truck, Volume2, VolumeX, XCircle } from "lucide-react";
 
 const STATUS_CONFIG = {
@@ -179,7 +180,7 @@ export default function AdminOrders() {
       const { data } = await axios.put(`/orders/${orderId}/status`, { status });
       setOrders((previous) => previous.map((order) => order._id === orderId ? data : order));
     } catch (err) {
-      window.alert(err.response?.data?.message || "Failed to update order status");
+      toast.error(err.response?.data?.message || "Failed to update order status");
     }
   };
 

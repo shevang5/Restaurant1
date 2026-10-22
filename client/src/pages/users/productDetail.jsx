@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { loadCart } from "../../store/reducers/cartSlice";
 import axios from "../../api/config";
+import { toast } from "react-toastify";
 import {
   ArrowLeft,
   ShoppingCart,
@@ -49,7 +50,7 @@ const ProductDetail = () => {
       const token = storedUser?.token;
 
       if (!token) {
-        alert("Please login first");
+        toast.info("Please log in to add items to your cart.");
         return;
       }
 
@@ -69,7 +70,7 @@ const ProductDetail = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       dispatch(loadCart(data));
-      alert(
+      toast.success(
         `Added to Cart ${
           product.hasPortionOptions
             ? `(${selectedPortion === "half" ? "Half" : "Full"} Plate)`
@@ -78,7 +79,7 @@ const ProductDetail = () => {
       );
     } catch (err) {
       console.log(err);
-      alert("Failed to add to cart");
+      toast.error(err.response?.data?.message || "Failed to add to cart");
     }
   };
 

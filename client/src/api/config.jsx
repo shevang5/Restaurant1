@@ -1,7 +1,12 @@
 // src/api/config.js
 import axios from "axios";
+import { Capacitor } from "@capacitor/core";
 
-const baseURL = import.meta.env.VITE_SERVER_URL || "https://restaurant1-g7zj.onrender.com/api";
+const configuredBaseURL = import.meta.env.VITE_SERVER_URL || "https://restaurant1-g7zj.onrender.com/api";
+// Android emulators reach services running on the host computer through 10.0.2.2.
+const baseURL = Capacitor.getPlatform() === "android"
+  ? configuredBaseURL.replace(/^http:\/\/(?:localhost|127\.0\.0\.1)(?=:\d+)/, "http://10.0.2.2")
+  : configuredBaseURL;
 
 // Create axios instance with default config
 const config = axios.create({

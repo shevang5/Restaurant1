@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { loadCart } from "../store/reducers/cartSlice";
 import EmptyCart from "../components/EmptyCart";
 import { Banknote, Bike, CalendarClock, MapPin, PackageCheck, Smartphone, Store, X } from "lucide-react";
+import { toast } from "react-toastify";
 
 const INR = "\u20B9";
 const getRegisteredPhone = () => {
@@ -150,12 +151,12 @@ const Cart = () => {
         deliveryType === "home" &&
         (!selectedInfo.line1 || !selectedInfo.city || !selectedInfo.phone)
       ) {
-        alert("Please provide a valid address and phone number.");
+        toast.error("Please provide a valid address and phone number.");
         return;
       }
 
       if (deliveryType === "pickup" && (!selectedInfo.phone || !selectedInfo.pickTime)) {
-        alert("Please provide pickup details.");
+        toast.error("Please provide pickup details.");
         return;
       }
 
@@ -176,7 +177,7 @@ const Cart = () => {
 
       if (paymentMethod === "offline") {
         await axios.post("/orders", orderData);
-        alert("Order placed successfully!");
+        toast.success("Order placed successfully!");
         setCart({ items: [] });
         dispatch(loadCart({ items: [] }));
         setShowCheckoutPopup(false);
@@ -196,6 +197,7 @@ const Cart = () => {
         order_id: razorpayOrder.id,
         handler: async (res) => {
           await axios.post("/orders/verify", res);
+          toast.success("Payment successful! Your order is placed.");
           setShowCheckoutPopup(false);
           navigate("/myorders");
         },
@@ -205,6 +207,7 @@ const Cart = () => {
       new window.Razorpay(options).open();
     } catch (err) {
       console.error(err);
+      toast.error(err.response?.data?.message || "Could not place your order. Please try again.");
     }
   };
 

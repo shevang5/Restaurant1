@@ -14,8 +14,7 @@ import {
   CheckCircle,
   Loader2
 } from 'lucide-react'
-import { toast, ToastContainer } from 'react-toastify'
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from 'react-toastify'
 
 const CreateProduct = () => {
   const {
@@ -420,7 +419,6 @@ const CreateProduct = () => {
             </div>
           </div>
         </div>
-        <ToastContainer position="bottom-right" autoClose={2000} />
       </div>
     </div>
   )

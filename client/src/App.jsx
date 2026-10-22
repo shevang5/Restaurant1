@@ -8,6 +8,7 @@ import { asyncCurrentUsers, asyncLogoutUsers } from './store/action/userActions'
 import { asyncLoadProducts } from './store/action/productActions';
 import { asyncCreateOrder } from './store/action/orderActions';
 import useSocket from './hooks/useSocket';
+import { ToastContainer } from 'react-toastify';
 
 // Lazy load layout and routes
 const Navbar = lazy(() => import('./components/Navbar'))
@@ -37,6 +38,7 @@ const App = () => {
 
   return (
     <div className={hideNavigation ? "min-h-screen" : "lg:pb-0 pb-20"}>
+      <ToastContainer position="top-center" autoClose={2800} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover theme="light" />
       <Suspense fallback={<Loader />}>
         {!hideNavigation && <Navbar />}
         <Mainroutes />

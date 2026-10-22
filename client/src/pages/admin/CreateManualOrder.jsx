@@ -15,8 +15,7 @@ import {
     ArrowLeft
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 export default function CreateManualOrder() {
     const [products, setProducts] = useState([]);
@@ -110,9 +109,9 @@ export default function CreateManualOrder() {
     // Submit Order
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!cart.length) return alert("Cart is empty!");
+        if (!cart.length) return toast.error("Cart is empty!");
         if (!customerDetails.name || !customerDetails.phone)
-            return alert("Customer Name and Phone are required!");
+            return toast.error("Customer name and phone are required!");
 
         setSubmitting(true);
 
@@ -136,14 +135,13 @@ export default function CreateManualOrder() {
         }
 
         try {
-            toast.success(`Order Created Successfully!`);
             await axios.post("/orders", orderPayload);
-            // alert("Order Created Successfully!");
+            toast.success("Order created successfully!");
 
             navigate("/admin/orders");
         } catch (err) {
             console.error(err);
-            alert(err.response?.data?.message || "Failed to create order");
+            toast.error(err.response?.data?.message || "Failed to create order");
         } finally {
             setSubmitting(false);
         }
@@ -417,7 +415,6 @@ export default function CreateManualOrder() {
             border-radius: 20px;
             }
             `}</style>
-            <ToastContainer position="top-right" autoClose={2000} />
         </div>
     );
 }

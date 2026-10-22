@@ -5,6 +5,7 @@ import { ArrowLeft, Heart, ShoppingCart, Utensils } from "lucide-react";
 import axios from "../api/config";
 import { loadCart } from "../store/reducers/cartSlice";
 import { getSavedProducts, SAVED_PRODUCTS_EVENT, toggleSavedProduct } from "../utils/savedProducts";
+import { toast } from "react-toastify";
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
@@ -52,10 +53,10 @@ const ProductCard = ({ product }) => {
       });
       dispatch(loadCart(response.data));
       setShowPortionPicker(false);
-      alert(`Added to Cart (${portion === "half" ? "Half" : "Full"} Plate)`);
+      toast.success(`Added to cart (${portion === "half" ? "Half" : "Full"} plate)`);
     } catch (error) {
       console.error("Error adding to cart:", error.response?.data || error.message);
-      alert("Failed to add to cart");
+      toast.error(error.response?.data?.message || "Failed to add to cart");
     }
   };
 
