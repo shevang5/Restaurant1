@@ -22,8 +22,8 @@ const App = () => {
   const { orders } = useSelector((state) => state.orders)
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
-  const isLoginPath = location.pathname === '/login';
-  const hideNavigation = isAdminPath || isLoginPath;
+  const isAuthPath = location.pathname === '/login' || location.pathname === '/register';
+  const hideNavigation = isAdminPath || isAuthPath;
 
   // establish socket connection for real-time updates
   useSocket();

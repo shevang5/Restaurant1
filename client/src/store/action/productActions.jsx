@@ -41,6 +41,7 @@ export const asyncCreateProduct = (product) => async (dispatch) => {
 
     console.log("Product created successfully:", response.data);
     dispatch(asyncLoadProducts());
+    return response.data;
   } catch (error) {
     if (error.response) {
       console.error("Server Error:", error.response.data);
@@ -50,6 +51,7 @@ export const asyncCreateProduct = (product) => async (dispatch) => {
     } else {
       console.error("Request Error:", error.message);
     }
+    throw error;
   }
 };
 
@@ -108,6 +110,7 @@ export const asyncRemoveProduct = (id) => async (dispatch) => {
 
     console.log("Product deleted:", response.data);
     dispatch(asyncLoadProducts());
+    return response.data;
   } catch (error) {
     if (error.response) {
       console.error("Server Error:", error.response.data);
@@ -117,5 +120,6 @@ export const asyncRemoveProduct = (id) => async (dispatch) => {
     } else {
       console.error("Request Error:", error.message);
     }
+    throw error;
   }
 };

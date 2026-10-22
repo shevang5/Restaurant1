@@ -179,6 +179,7 @@ export default function AdminOrders() {
     try {
       const { data } = await axios.put(`/orders/${orderId}/status`, { status });
       setOrders((previous) => previous.map((order) => order._id === orderId ? data : order));
+      toast.success(`Order marked ${STATUS_CONFIG[status]?.label?.toLowerCase() || status}.`);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update order status");
     }

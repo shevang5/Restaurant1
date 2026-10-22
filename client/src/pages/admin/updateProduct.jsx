@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, DollarSign, FileText, Image as ImageIcon, Save, Tag } from "lucide-react";
+import { toast } from "react-toastify";
 import { asyncLoadProducts, asyncUpdateProduct } from "../../store/action/productActions";
 
 const UpdateProduct = () => {
@@ -83,8 +84,13 @@ const UpdateProduct = () => {
       formData.append("imageUrl", data.imageUrl);
     }
 
-    await dispatch(asyncUpdateProduct(product._id || product.id, formData));
-    navigate(`/products/${product._id || product.id}`);
+    try {
+      await dispatch(asyncUpdateProduct(product._id || product.id, formData));
+      toast.success("Product updated successfully.");
+      navigate("/admin/menu");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update product.");
+    }
   };
 
   if (!product && products.length > 0) {
