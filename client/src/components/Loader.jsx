@@ -4,7 +4,7 @@ export default function Loader() {
       <div className="w-full max-w-5xl animate-pulse">
         <div className="h-12 md:h-14 w-full max-w-xl rounded-full bg-gray-200 mx-auto mb-8" />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-7">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-7">
           {[...Array(8)].map((_, idx) => (
             <div
               key={idx}

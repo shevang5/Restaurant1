@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import axios from "../api/config";
 import { Search, ChefHat } from "lucide-react";
 import ProductCard from "../components/ProductCard";
@@ -10,26 +10,51 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedFoodType, setSelectedFoodType] = useState("All");
+  const retryTimer = useRef(null);
+
+  const scheduleRetry = () => {
+    if (retryTimer.current) return;
+
+    retryTimer.current = setTimeout(() => {
+      retryTimer.current = null;
+      fetchProducts();
+    }, 1000);
+  };
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
       setError("");
+
       const res = await axios.get("/products");
-      setProducts(res.data);
+      const nextProducts = Array.isArray(res.data) ? res.data : [];
+
+      if (nextProducts.length === 0) {
+        scheduleRetry();
+        return;
+      }
+
+      setProducts(nextProducts);
+      setLoading(false);
+
+      if (retryTimer.current) {
+        clearTimeout(retryTimer.current);
+        retryTimer.current = null;
+      }
     } catch (err) {
       console.error("Error fetching products:", err);
-      setError(
-        err.userMessage ||
-          "Unable to load products right now. The server may be waking up, please retry."
-      );
-    } finally {
-      setLoading(false);
+      setLoading(true);
+      setError("");
+      scheduleRetry();
     }
   };
 
   useEffect(() => {
     fetchProducts();
+
+    return () => {
+      if (retryTimer.current) clearTimeout(retryTimer.current);
+    };
   }, []);
 
   const categories = useMemo(() => {
@@ -137,8 +162,8 @@ const Products = () => {
       </div>
 
       <div className="max-w-7xl z-50 mx-auto px-4 py-8 md:py-12">
-        {loading || (!products.length && error) ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+        {loading ? (
+          <div className="min-h-[420px] grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="animate-pulse -z-10 flex flex-col h-full bg-white rounded-2xl border border-gray-100 p-3">
                 <div className="bg-gray-200 h-48 rounded-xl mb-4 w-full"></div>
